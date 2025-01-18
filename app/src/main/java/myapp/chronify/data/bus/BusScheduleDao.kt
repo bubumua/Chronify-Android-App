@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package myapp.chronify.data
+package myapp.chronify.data.bus
 
 import androidx.room.Dao
 import androidx.room.Query

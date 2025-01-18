@@ -21,8 +21,8 @@ import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.AP
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import myapp.chronify.DataContainerApplication
-import myapp.chronify.data.BusSchedule
-import myapp.chronify.data.BusScheduleDao
+import myapp.chronify.data.bus.BusSchedule
+import myapp.chronify.data.bus.BusScheduleDao
 import kotlinx.coroutines.flow.Flow
 
 /*

@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      https://www.apache.org/licenses/LICENSE-2.0
+ *     https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -13,22 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package myapp.chronify
 
-import android.app.Application
-import myapp.chronify.data.AppDataContainer
-import myapp.chronify.data.AppDatabase
+package myapp.chronify.ui.navigation
 
-class DataContainerApplication: Application() {
+/**
+ * Interface to describe the navigation destinations for the app
+ */
+interface NavigationDestination {
     /**
-     * AppContainer instance used by the rest of classes to obtain dependencies
+     * Unique name to define the path for a composable
      */
-    lateinit var container: AppDataContainer
+    val route: String
 
-    val database: AppDatabase by lazy { AppDatabase.getDatabase(this) }
-
-    override fun onCreate() {
-        super.onCreate()
-        container = AppDataContainer(this)
-    }
+    /**
+     * String resource id to that contains title to be displayed for the screen.
+     */
+    val titleRes: Int
 }

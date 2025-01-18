@@ -19,15 +19,18 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import myapp.chronify.ui.element.BusScheduleApp
+import myapp.chronify.ui.navigation.AppNavHost
 import myapp.chronify.ui.theme.BusScheduleTheme
+import myapp.chronify.ui.theme.bluesimple.BlueSimpleTheme
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            BusScheduleTheme {
-                BusScheduleApp()
-            }
+            // BusScheduleTheme {
+            //     BusScheduleApp()
+            // }
+            BlueSimpleTheme { AppNavHost() }
         }
     }
 }

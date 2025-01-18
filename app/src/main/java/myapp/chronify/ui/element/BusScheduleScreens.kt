@@ -52,7 +52,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import myapp.chronify.data.BusSchedule
+import myapp.chronify.data.bus.BusSchedule
 import myapp.chronify.ui.viewmodel.BusScheduleViewModel
 import myapp.chronify.ui.theme.BusScheduleTheme
 import myapp.chronify.R
@@ -80,7 +80,7 @@ fun BusScheduleApp(
 
     Scaffold(
         topBar = {
-            BusScheduleTopAppBar(
+            AppTopBar(
                 title = topAppBarTitle,
                 canNavigateBack = navController.previousBackStackEntry != null,
                 onBackClick = { onBackHandler() }

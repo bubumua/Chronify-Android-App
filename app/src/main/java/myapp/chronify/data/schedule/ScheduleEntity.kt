@@ -1,15 +1,15 @@
-package myapp.chronify.data
+package myapp.chronify.data.schedule
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
-@Entity(tableName = "ShiSchedule")
-data class ShiSchedule(
+@Entity(tableName = "ScheduleEntity")
+data class ScheduleEntity(
     @PrimaryKey(autoGenerate = true)
-    val id: Int = 1,
+    val id: Int = 0,
     val title: String,
-    val type: String,
-    val isFinished: Boolean,
+    val type: String = "DEFAULT",
+    val isFinished: Boolean = false,
     val createdDT: Long = System.currentTimeMillis(),
     val beginDT: Long? = null,
     val endDT: Long? = null,

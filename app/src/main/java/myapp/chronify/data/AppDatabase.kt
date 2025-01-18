@@ -19,11 +19,15 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import myapp.chronify.data.bus.BusSchedule
+import myapp.chronify.data.bus.BusScheduleDao
+import myapp.chronify.data.schedule.ScheduleDao
+import myapp.chronify.data.schedule.ScheduleEntity
 
-@Database(entities = [BusSchedule::class, ShiSchedule::class], version = 1, exportSchema = false)
+@Database(entities = [BusSchedule::class, ScheduleEntity::class], version = 1, exportSchema = false)
 abstract class AppDatabase: RoomDatabase() {
     abstract fun busScheduleDao(): BusScheduleDao
-    abstract fun shiScheduleDao(): ShiScheduleDao
+    abstract fun scheduleDao(): ScheduleDao
 
     companion object {
         @Volatile
@@ -36,7 +40,7 @@ abstract class AppDatabase: RoomDatabase() {
                     AppDatabase::class.java,
                     "Chronify_database"
                 )
-                    .createFromAsset("database/bus_schedule.db")
+                    // .createFromAsset("database/bus_schedule.db")
                     // Wipes and rebuilds instead of migrating if no Migration object.
                     .fallbackToDestructiveMigration()
                     .build()

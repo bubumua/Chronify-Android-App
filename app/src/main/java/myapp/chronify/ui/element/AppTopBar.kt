@@ -1,7 +1,7 @@
 package myapp.chronify.ui.element
 
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -15,11 +15,11 @@ import myapp.chronify.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun BusScheduleTopAppBar(
+fun AppTopBar(
     title: String,
     canNavigateBack: Boolean,
-    onBackClick: () -> Unit,
-    modifier: Modifier = Modifier
+    onBackClick: () -> Unit = {},
+    modifier: Modifier = Modifier,
 ) {
     if (canNavigateBack) {
         TopAppBar(
@@ -27,7 +27,7 @@ fun BusScheduleTopAppBar(
             navigationIcon = {
                 IconButton(onClick = onBackClick) {
                     Icon(
-                        imageVector = Icons.Filled.ArrowBack,
+                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                         contentDescription = stringResource(
                             R.string.back
                         )
