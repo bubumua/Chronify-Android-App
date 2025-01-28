@@ -17,15 +17,19 @@
     <string name="app_name">Chronify</string>
     <string name="full_schedule">Chronify</string>
     <string name="back">Back</string>
+
     <string name="stop_name">Stop Name</string>
     <string name="route_stop_name">Stop</string>
     <string name="arrival_time">Arrival Time</string>
+
     <string name="add_button">Add a Schedule</string>
     <string name="add_schedule_title">Add Schedule</string>
     <string name="delete_button">Delete</string>
     <string name="tip_no_schedule">No Schedule! Tap + to Add a Schedule</string>
     <string name="submit">Save</string>
-    <string name="title_req">Schedule title*</string>
-    <string name="type_req">Schedule type*</string>
-    <string name="isfinished_req">is finished*</string>
+    <string name="title_req">Schedule Title*</string>
+    <string name="type_req">Schedule Type*</string>
+    <string name="isFinished_req">finished*</string>
+    <string name="description_req">Schedule Description</string>
+    <string name="location_req">Schedule Location</string>
 </resources>

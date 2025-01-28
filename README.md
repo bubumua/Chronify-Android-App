@@ -11,13 +11,15 @@ and queries on the data table are made by the `ScheduleDao` class. The app inclu
 access the `ScheduleDao` and format data to be display in a list.
 
 # Pre-requisites
-* Experience with Kotlin syntax.
-* Experience with Jetpack Compose.
-* How to create and run a project in Android Studio.
-* Basic knowledge of SQL databases and performing basic queries.
 
-# Getting Started
+
+# For developers
 1. Install Android Studio, if you don't already have it.
 2. Download the sample.
 3. Import the sample into Android Studio.
 4. Build and run the sample.
+
+# References
+
+- [AnchoredDraggable Modifier](https://canopas.com/how-to-implement-swipe-to-action-using-anchoreddraggable-in-jetpack-compose-cccb22e44dff)
+- 
