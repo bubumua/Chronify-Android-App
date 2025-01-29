@@ -82,7 +82,7 @@ inline fun <reified T : Enum<T>> EnumDropdown(
         onExpandedChange = { expanded = it },
         modifier = modifier
     ) {
-        OutlinedTextField(
+        TextField(
             // The `menuAnchor` modifier must be passed to the text field to handle         // expanding/ collapsing the menu on click. A read-only text field has         // the anchor type `PrimaryNotEditable`.
             modifier = Modifier
                 .menuAnchor(MenuAnchorType.PrimaryNotEditable).fillMaxWidth(),

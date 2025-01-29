@@ -16,4 +16,5 @@
 -->
 <resources>
     <style name="Theme.BusSchedule" parent="android:Theme.Material.Light.NoActionBar" />
+    <style name="Theme.BlueSimple" parent="android:Theme.Material.Light.NoActionBar" />
 </resources>

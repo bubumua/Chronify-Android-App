@@ -20,6 +20,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
@@ -46,6 +47,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
@@ -98,7 +100,7 @@ fun RemindScreen(
 ) {
     val remindUiState by viewModel.remindUiState.collectAsState()
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
-    val sheetState = rememberModalBottomSheetState()
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = false,)
     val scope = rememberCoroutineScope()
     var showBottomSheet by remember { mutableStateOf(false) }
 
@@ -130,23 +132,17 @@ fun RemindScreen(
             modifier = modifier.fillMaxSize(),
             contentPadding = innerPadding
         )
+        // Bottom sheet
         if (showBottomSheet) {
             ModalBottomSheet(
-                onDismissRequest = {
-                    showBottomSheet = false
-                },
-                sheetState = sheetState
+                sheetState = sheetState,
+                onDismissRequest = { showBottomSheet = false},
+                modifier = Modifier
+                    // extend to max height
+                    // .fillMaxHeight(),
             ) {
                 // Sheet content
-                Button(onClick = {
-                    scope.launch { sheetState.hide() }.invokeOnCompletion {
-                        if (!sheetState.isVisible) {
-                            showBottomSheet = false
-                        }
-                    }
-                }) {
-                    Text("Hide bottom sheet")
-                }
+                AddScheduleBottomSheetContent()
             }
         }
     }
@@ -232,7 +228,6 @@ fun ScheduleItem(
     onDelete: (ScheduleEntity) -> Unit = {},
     modifier: Modifier = Modifier
 ) {
-
     val density = LocalDensity.current
     val decayAnimationSpec = rememberSplineBasedDecay<Float>()
     val dragState = remember {
@@ -348,6 +343,7 @@ fun ScheduleItem(
     }
 
 }
+
 
 @Preview(showBackground = true)
 @Composable

@@ -129,8 +129,8 @@ fun ScheduleInputForm(
         // Title
         OutlinedTextField(
             value = schedule.title,
-            label = { Text(stringResource(string.title_req)) },
             onValueChange = { onValueChange(schedule.copy(title = it)) },
+            label = { Text(stringResource(string.title_req)) },
             modifier = Modifier.fillMaxWidth(),
             colors = OutlinedTextFieldDefaults.colors(
                 focusedContainerColor = MaterialTheme.colorScheme.secondaryContainer,

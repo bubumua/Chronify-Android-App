@@ -32,4 +32,12 @@
     <string name="isFinished_req">finished*</string>
     <string name="description_req">Schedule Description</string>
     <string name="location_req">Schedule Location</string>
+    <!--  localization for schedule type  -->
+    <string name="schedule_type_default">default</string>
+    <string name="schedule_type_reminder">reminder</string>
+    <string name="schedule_type_check_in">check-in</string>
+    <string name="schedule_type_cyclical">cyclical</string>
+    <string name="schedule_type_mission">mission</string>
+    <string name="schedule_type_undefined">undefined</string>
+
 </resources>
