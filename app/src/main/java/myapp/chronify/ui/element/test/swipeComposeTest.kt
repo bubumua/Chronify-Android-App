@@ -1,4 +1,4 @@
-package myapp.chronify.ui.element
+package myapp.chronify.ui.element.test
 
 import android.util.Log
 import androidx.compose.animation.AnimatedVisibility

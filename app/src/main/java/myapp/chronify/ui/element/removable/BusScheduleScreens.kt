@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package myapp.chronify.ui.element
+package myapp.chronify.ui.element.removable
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.clickable
@@ -57,6 +57,7 @@ import myapp.chronify.data.bus.BusSchedule
 import myapp.chronify.ui.viewmodel.BusScheduleViewModel
 import myapp.chronify.ui.theme.BusScheduleTheme
 import myapp.chronify.R
+import myapp.chronify.ui.element.AppTopBar
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale

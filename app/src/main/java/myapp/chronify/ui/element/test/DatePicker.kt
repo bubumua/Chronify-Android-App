@@ -1,4 +1,4 @@
-package myapp.chronify.ui.element
+package myapp.chronify.ui.element.test
 
 import android.icu.text.SimpleDateFormat
 import androidx.compose.foundation.background
@@ -51,6 +51,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.compose.ui.window.Popup
+import myapp.chronify.ui.element.DateTimePickerDialogTest
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
@@ -299,8 +300,7 @@ fun AdvancedTimePickerDialog(
         Surface(
             shape = MaterialTheme.shapes.extraLarge,
             tonalElevation = 6.dp,
-            modifier =
-            Modifier
+            modifier = Modifier
                 .width(IntrinsicSize.Min)
                 .height(IntrinsicSize.Min)
                 .background(
@@ -363,10 +363,45 @@ fun TimePickerFieldToModal(modifier: Modifier = Modifier) {
             }
     )
 
+    // if (showModal) {
+    //     AdvancedTimePickerExample(
+    //         onConfirm = { selectedTime = it },
+    //         onDismiss = { showModal = false }
+    //     )
+    // }
+
     if (showModal) {
-        AdvancedTimePickerExample(
-            onConfirm = { selectedTime = it },
+        DateTimePickerDialogTest(
+            dialogTitle = "Select Time",
+            onConfirm = { },
             onDismiss = { showModal = false }
         )
     }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun AdvancedMerge(
+    onConfirm: (TimePickerState) -> Unit,
+    onDismiss: () -> Unit,
+) {
+    val currentTime = Calendar.getInstance()
+
+    val timePickerState = rememberTimePickerState(
+        initialHour = currentTime.get(Calendar.HOUR_OF_DAY),
+        initialMinute = currentTime.get(Calendar.MINUTE),
+        is24Hour = false,
+    )
+
+    /** Determines whether the time picker is dial or input */
+    var showDial by remember { mutableStateOf(true) }
+
+    /** The icon used for the icon button that switches from dial to input */
+    val toggleIcon = if (showDial) {
+        Icons.Filled.Edit
+    } else {
+        Icons.Filled.DateRange
+    }
+
+
 }
