@@ -17,15 +17,12 @@
     <string name="app_name">Chronify</string>
     <string name="full_schedule">Chronify</string>
     <string name="back">Back</string>
-
-    <string name="stop_name">Stop Name</string>
-    <string name="route_stop_name">Stop</string>
-    <string name="arrival_time">Arrival Time</string>
-
     <string name="add_button">Add a Schedule</string>
+    <!--  add screen  -->
     <string name="add_schedule_title">Add Schedule</string>
     <string name="delete_button">Delete</string>
     <string name="tip_no_schedule">No Schedule! Tap + to Add a Schedule</string>
+    <!--  entry edit  -->
     <string name="submit">Save</string>
     <string name="title_req">Schedule Title*</string>
     <string name="type_req">Schedule Type*</string>
@@ -39,5 +36,17 @@
     <string name="schedule_type_cyclical">cyclical</string>
     <string name="schedule_type_mission">mission</string>
     <string name="schedule_type_undefined">undefined</string>
+    <!--  date&time picker  -->
+    <string name="date_time_picker_title">Select Date and Time</string>
+    <string name="swap_horiz">switch select mode</string>
+    <string name="confirm">OK</string>
+    <string name="cancel">Cancel</string>
+    <string name="pick_time">pick time</string>
+    <string name="input_time">input time</string>
+
+    <!-- bus schedule -->
+    <string name="stop_name">Stop Name</string>
+    <string name="route_stop_name">Stop</string>
+    <string name="arrival_time">Arrival Time</string>
 
 </resources>
