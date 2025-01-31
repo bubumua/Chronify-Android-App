@@ -12,11 +12,6 @@ import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import myapp.chronify.R.string
 
-// 转换为epochDay（从1970-01-01开始的天数）
-fun LocalDate.toEpochDay(): Long {
-    return this.toEpochDay()
-}
-
 // 转换为epochMillis（从1970-01-01开始的毫秒数）
 fun LocalDate.toEpochMilli(): Long {
     return this.atStartOfDay(ZoneId.systemDefault())

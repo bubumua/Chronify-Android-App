@@ -270,6 +270,7 @@ fun ScheduleItem(
                 },
             elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
         ) {
+            // TODO: adjust content
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
