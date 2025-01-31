@@ -86,7 +86,6 @@ enum class ScheduleItemSwipeAnchorValue { Read, Resting, Delete }
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RemindScreen(
-    navigateToAddScreen: () -> Unit = {},
     modifier: Modifier = Modifier,
     viewModel: RemindViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {

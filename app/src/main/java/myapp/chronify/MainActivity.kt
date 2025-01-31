@@ -25,9 +25,8 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            // BusScheduleTheme {
-            //     BusScheduleApp()
-            // }
+            // TODO: DataStore
+            // TODO: navigation drawer
             BlueSimpleTheme { AppNavHost() }
         }
     }
