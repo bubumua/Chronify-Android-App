@@ -75,7 +75,7 @@ fun TimePolymer(
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = modifier.fillMaxSize()
+        modifier = modifier.fillMaxWidth()
     ) {
         Row(
             horizontalArrangement = Arrangement.SpaceBetween,
@@ -92,12 +92,12 @@ fun TimePolymer(
                 TimePolymerMode.Picker -> {
                     IconButton(
                         onClick = { displayMode = TimePolymerMode.Input },
-                        modifier = modifier.size(48.dp)
+                        modifier = Modifier
                     ) {
                         Icon(
-                            painterResource(drawable.nest_clock_farsight_digital_24px),
+                            painterResource(drawable.filled_nest_clock_farsight_digital_24px),
                             contentDescription = stringResource(string.input_time),
-                            modifier = modifier.size(48.dp)
+                            modifier = Modifier.size(48.dp)
                         )
                     }
                 }
@@ -105,12 +105,12 @@ fun TimePolymer(
                 TimePolymerMode.Input -> {
                     IconButton(
                         onClick = { displayMode = TimePolymerMode.Picker },
-                        modifier = modifier.size(48.dp)
+                        modifier = Modifier
                     ) {
                         Icon(
-                            painterResource(drawable.nest_clock_farsight_analog_24px),
+                            painterResource(drawable.filled_nest_clock_farsight_analog_24px),
                             contentDescription = stringResource(string.pick_time),
-                            modifier = modifier.size(48.dp)
+                            modifier = Modifier.size(48.dp)
                         )
                     }
                 }

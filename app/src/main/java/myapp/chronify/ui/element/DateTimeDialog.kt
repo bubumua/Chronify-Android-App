@@ -2,20 +2,15 @@ package myapp.chronify.ui.element
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SegmentedButton
 import androidx.compose.material3.SegmentedButtonDefaults
@@ -33,23 +28,20 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
-import myapp.chronify.R.drawable
 import myapp.chronify.R.string
+import myapp.chronify.utils.combineDateTimeState
 import java.util.Calendar
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DateTimePickerDialog(
-    dialogTitle: String,
     onDismiss: () -> Unit,
-    onConfirm: (Long?) -> Unit = {}
+    onConfirm: (Long?, Long?) -> Unit = { _, _ -> onDismiss() }
 ) {
     Dialog(
         onDismissRequest = onDismiss,
@@ -63,9 +55,9 @@ fun DateTimePickerDialog(
             shape = MaterialTheme.shapes.extraLarge,
             tonalElevation = 6.dp,
             modifier = Modifier
-                .width(IntrinsicSize.Min)
-                // .width(500.dp)
-                .height(IntrinsicSize.Min)
+                // .width(IntrinsicSize.Min)
+                .fillMaxWidth()
+                // .height(IntrinsicSize.Min)
                 // .height(600.dp)
                 .background(
                     shape = MaterialTheme.shapes.extraLarge,
@@ -76,13 +68,6 @@ fun DateTimePickerDialog(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier.padding(24.dp),
             ) {
-                Text(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = 20.dp),
-                    text = dialogTitle,
-                    style = MaterialTheme.typography.labelMedium
-                )
 
                 var selectedIndex by remember { mutableIntStateOf(0) }
                 val options = listOf("Date", "Time")
@@ -100,7 +85,7 @@ fun DateTimePickerDialog(
                     }
                 }
 
-                val datePickerState = rememberDatePickerState()
+                var selectedDateRange by remember { mutableStateOf(DateRange()) }
                 val calender = Calendar.getInstance()
                 val timePickerState = rememberTimePickerState(
                     initialHour = calender.get(Calendar.HOUR_OF_DAY),
@@ -111,11 +96,16 @@ fun DateTimePickerDialog(
                 when (selectedIndex) {
                     // pick date
                     0 -> {
-                        DatePicker(datePickerState)
+                        SimpleDateRangePicker(
+                            startFromSunday = false,
+                            onDateRangeSelected = { dateRange ->
+                                selectedDateRange = dateRange
+                            },
+                        )
                     }
                     // pick time
                     1 -> {
-                        // TimePolymer(timePickerState)
+                        TimePolymer(timePickerState)
                     }
 
                     else -> {}
@@ -127,7 +117,28 @@ fun DateTimePickerDialog(
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     TextButton(onClick = onDismiss) { Text(stringResource(string.cancel)) }
-                    TextButton(onClick = { onConfirm(0) }) { Text(stringResource(string.confirm)) }
+                    TextButton(
+                        onClick = {
+                            onConfirm(
+                                if (selectedDateRange.startDate != null) {
+                                    combineDateTimeState(
+                                        selectedDateRange.startDate!!,
+                                        timePickerState
+                                    )
+                                } else {
+                                    null
+                                },
+                                if (selectedDateRange.endDate != null) {
+                                    combineDateTimeState(
+                                        selectedDateRange.endDate!!,
+                                        timePickerState
+                                    )
+                                } else {
+                                    null
+                                }
+                            )
+                        }
+                    ) { Text(stringResource(string.confirm)) }
                 }
             }
         }
@@ -138,8 +149,6 @@ fun DateTimePickerDialog(
 @Composable
 fun DateTimePickerDialogPreview() {
     DateTimePickerDialog(
-        dialogTitle = "Date Time Picker",
-        onConfirm = {},
         onDismiss = {}
     )
 }

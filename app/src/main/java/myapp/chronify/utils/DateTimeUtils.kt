@@ -2,12 +2,15 @@ package myapp.chronify.utils
 
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.TimePickerState
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.res.stringResource
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
+import myapp.chronify.R.string
 
 // 转换为epochDay（从1970-01-01开始的天数）
 fun LocalDate.toEpochDay(): Long {
@@ -40,7 +43,7 @@ fun TimePickerState.toLocalTime(): LocalTime {
 
 // 组合LocalDate和TimePickerState为Long
 @OptIn(ExperimentalMaterial3Api::class)
-fun combineDateTime(date: LocalDate, timeState: TimePickerState): Long {
+fun combineDateTimeState(date: LocalDate, timeState: TimePickerState): Long {
     val time = timeState.toLocalTime()
     return LocalDateTime.of(date, time)
         .atZone(ZoneId.systemDefault())
@@ -97,15 +100,16 @@ object MyDateTimeFormatter {
     }
 
     // 转换为友好格式（例如："今天 14:30"，"昨天 15:20"，"2023年12月1日 16:40"）
+    @Composable
     fun Long.toFriendlyString(): String {
         val dateTime = this.toLocalDateTime()
         val now = LocalDateTime.now()
 
         return when {
             dateTime.toLocalDate() == now.toLocalDate() ->
-                "today ${dateTime.format(timeOnlyFormatter)}"
+                "${stringResource(string.today)} ${dateTime.format(timeOnlyFormatter)}"
             dateTime.toLocalDate() == now.minusDays(1).toLocalDate() ->
-                "yesterday ${dateTime.format(timeOnlyFormatter)}"
+                "${stringResource(string.yesterday)} ${dateTime.format(timeOnlyFormatter)}"
             dateTime.year == now.year ->
                 dateTime.format(DateTimeFormatter.ofPattern("MM-dd HH:mm"))
             else ->

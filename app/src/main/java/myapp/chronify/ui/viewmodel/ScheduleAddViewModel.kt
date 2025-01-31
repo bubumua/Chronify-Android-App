@@ -24,7 +24,6 @@ class ScheduleAddViewModel(private val scheduleRepository: ScheduleRepository): 
             ScheduleUiState(schedule = schedule, isValid = validateInput(schedule))
     }
 
-    // TODO: to be completed
     private fun validateInput(schedule: Schedule=scheduleUiState.schedule): Boolean {
         return with(schedule) {
             title.isNotBlank()

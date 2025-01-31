@@ -2,8 +2,14 @@ package myapp.chronify.ui.element
 
 import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.animation.rememberSplineBasedDecay
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -100,9 +106,9 @@ fun RemindScreen(
 ) {
     val remindUiState by viewModel.remindUiState.collectAsState()
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
-    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = false,)
-    val scope = rememberCoroutineScope()
+    val sheetState = rememberModalBottomSheetState()
     var showBottomSheet by remember { mutableStateOf(false) }
+    val scope = rememberCoroutineScope()
 
     Scaffold(
         modifier = modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
@@ -134,16 +140,16 @@ fun RemindScreen(
         )
         // Bottom sheet
         if (showBottomSheet) {
-            ModalBottomSheet(
+            AddScheduleBottomSheet(
                 sheetState = sheetState,
-                onDismissRequest = { showBottomSheet = false},
-                modifier = Modifier
-                    // extend to max height
-                    // .fillMaxHeight(),
-            ) {
-                // Sheet content
-                AddScheduleBottomSheetContent()
-            }
+                onDismissRequest = {
+                    scope.launch { sheetState.hide() }.invokeOnCompletion {
+                        if (!sheetState.isVisible) {
+                            showBottomSheet = false
+                        }
+                    }
+                },
+            )
         }
     }
 }
@@ -162,13 +168,8 @@ fun RemindBody(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = modifier,
     ) {
-        // Text(
-        //     "there is schedule plan",
-        //     style = MaterialTheme.typography.titleLarge,
-        //     modifier = Modifier
-        //         .fillMaxWidth()
-        //         .padding(contentPadding)
-        // )
+        // TODO: a visualization schedule
+
         if (scheduleList.isEmpty()) {
             Text(
                 text = stringResource(string.tip_no_schedule),
@@ -190,6 +191,7 @@ fun RemindBody(
 
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun ScheduleList(
     itemList: List<ScheduleEntity> = emptyList(),
@@ -207,14 +209,26 @@ fun ScheduleList(
             ScheduleItem(
                 item = item,
                 onDelete = {
-                    Log.d("ScheduleList", "Delete item: ${item.title}")
+                    // Log.d("ScheduleList", "Delete item: ${item.title}")
                     coroutineScope.launch {
                         viewModel.deleteSchedule(item)
+                    }
+                },
+                onCheck = {
+                    // Log.d("ScheduleList", "Check item: ${item.title}")
+                    coroutineScope.launch {
+                        viewModel.updateSchedule(
+                            it.copy(
+                                isFinished = !it.isFinished,
+                                endDT = System.currentTimeMillis()
+                            )
+                        )
                     }
                 },
                 modifier = Modifier
                     .padding(dimensionResource(dimen.padding_tiny))
                     .clickable { onItemClick(item) }
+
             )
         }
     }

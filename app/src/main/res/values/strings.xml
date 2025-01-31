@@ -37,12 +37,15 @@
     <string name="schedule_type_mission">mission</string>
     <string name="schedule_type_undefined">undefined</string>
     <!--  date&time picker  -->
+    <string name="date_time_picker_label">Date&amp;Time</string>
     <string name="date_time_picker_title">Select Date and Time</string>
     <string name="swap_horiz">switch select mode</string>
     <string name="confirm">OK</string>
     <string name="cancel">Cancel</string>
     <string name="pick_time">pick time</string>
     <string name="input_time">input time</string>
+    <string name="today">Tod</string>
+    <string name="yesterday">Yst</string>
 
     <!-- bus schedule -->
     <string name="stop_name">Stop Name</string>

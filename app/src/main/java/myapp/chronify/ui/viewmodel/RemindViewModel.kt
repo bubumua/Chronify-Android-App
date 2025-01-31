@@ -17,6 +17,7 @@ class RemindViewModel(val scheduleRepository: ScheduleRepository) : ViewModel() 
     companion object {
         private const val TIMEOUT_MILLIS = 5_000L
     }
+
     /**
      * Holds mark screen ui state. The list of schedules are retrieved from [ScheduleRepository] and mapped to [RemindUiState]
      */
@@ -29,5 +30,9 @@ class RemindViewModel(val scheduleRepository: ScheduleRepository) : ViewModel() 
 
     suspend fun deleteSchedule(schedule: ScheduleEntity){
         scheduleRepository.delete(schedule)
+    }
+
+    suspend fun updateSchedule(schedule: ScheduleEntity){
+        scheduleRepository.update(schedule)
     }
 }
