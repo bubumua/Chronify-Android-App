@@ -36,7 +36,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
-import androidx.compose.ui.focus.onFocusEvent
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -48,8 +47,8 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import myapp.chronify.R.dimen
-import myapp.chronify.R.string
 import myapp.chronify.R.drawable
+import myapp.chronify.R.string
 import myapp.chronify.datamodel.Schedule
 import myapp.chronify.datamodel.ScheduleType
 import myapp.chronify.datamodel.getIcon
@@ -287,7 +286,6 @@ fun AddScheduleBottomSheetContentPreview() {
 fun AddScheduleBottomSheetPreview() {
     BlueSimpleTheme {
         val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = false)
-        val scope = rememberCoroutineScope()
         var showBottomSheet by remember { mutableStateOf(false) }
 
         ModalBottomSheet(
@@ -295,16 +293,6 @@ fun AddScheduleBottomSheetPreview() {
             onDismissRequest = { showBottomSheet = false },
             modifier = Modifier.fillMaxHeight(),
         ) {
-            // Sheet content
-            // Button(onClick = {
-            //     scope.launch { sheetState.hide() }.invokeOnCompletion {
-            //         if (!sheetState.isVisible) {
-            //             showBottomSheet = false
-            //         }
-            //     }
-            // }) {
-            //     Text("Hide bottom sheet")
-            // }
             AddScheduleBottomSheetContent()
         }
     }
