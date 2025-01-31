@@ -1,4 +1,4 @@
-package myapp.chronify.ui.element.test
+package myapp.chronify.ui.element.exp
 
 import android.icu.text.SimpleDateFormat
 import androidx.compose.foundation.background

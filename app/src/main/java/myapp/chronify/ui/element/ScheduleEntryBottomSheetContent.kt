@@ -8,12 +8,15 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.AssistChip
+import androidx.compose.material3.AssistChipDefaults
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
@@ -28,47 +31,23 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import kotlinx.coroutines.launch
-import myapp.chronify.R.string
 import myapp.chronify.R.dimen
+import myapp.chronify.R.string
+import myapp.chronify.R.drawable
 import myapp.chronify.datamodel.Schedule
 import myapp.chronify.datamodel.ScheduleType
+import myapp.chronify.datamodel.getIcon
 import myapp.chronify.datamodel.getLocalizedName
 import myapp.chronify.ui.theme.bluesimple.BlueSimpleTheme
 import myapp.chronify.ui.viewmodel.AppViewModelProvider
 import myapp.chronify.ui.viewmodel.ScheduleAddViewModel
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Check
-import androidx.compose.material3.AssistChipDefaults
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.Icon
-import androidx.compose.ui.res.dimensionResource
-import androidx.compose.ui.res.painterResource
-import myapp.chronify.datamodel.getIcon
-
-
-// @OptIn(ExperimentalMaterial3Api::class)
-// @Composable
-// fun AddScheduleBottomSheetContent(
-//     sheetState: SheetState,
-//     onDismissRequest: () -> Unit,
-//     viewModel: ScheduleAddViewModel = viewModel(factory = AppViewModelProvider.Factory),
-//     modifier: Modifier = Modifier
-// ) {
-//     ModalBottomSheet(
-//         sheetState = sheetState,
-//         onDismissRequest = { },
-//         modifier = Modifier.fillMaxHeight(),
-//     ) {
-//
-//     }
-// }
-
 
 @Composable
 fun AddScheduleBottomSheetContent(
@@ -140,16 +119,28 @@ fun AddScheduleBottomSheetContent(
             TypeMenu(
                 ScheduleType.REMINDER,
                 onSelect = {
-                onValueChange(
-                    schedule.copy(
-                        type = it,
-                        isFinished = when (it) {
-                            ScheduleType.CHECK_IN -> true
-                            else -> false
-                        }
+                    onValueChange(
+                        schedule.copy(
+                            type = it,
+                            isFinished = when (it) {
+                                ScheduleType.CHECK_IN -> true
+                                else -> false
+                            }
+                        )
                     )
-                )
-            })
+                }
+            )
+            AssistChip(
+                onClick = {},
+                label = { Text("Date & Time") },
+                leadingIcon = {
+                    Icon(
+                        painterResource(drawable.calendar_add_on_24px),
+                        contentDescription = "Date & Time",
+                        Modifier.size(AssistChipDefaults.IconSize)
+                    )
+                }
+            )
         }
     }
 

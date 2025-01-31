@@ -1,4 +1,4 @@
-package myapp.chronify.ui.element.test
+package myapp.chronify.ui.element.exp
 
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.ExperimentalAnimationApi
