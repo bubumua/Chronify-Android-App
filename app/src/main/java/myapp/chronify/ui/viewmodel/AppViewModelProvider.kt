@@ -7,6 +7,8 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import myapp.chronify.DataContainerApplication
 
+const val TIMEOUT_MILLIS = 5_000L
+
 /**
  * Extension function to queries for [Application] object and returns an instance of [DataContainerApplication].
  */
@@ -23,7 +25,7 @@ object AppViewModelProvider {
             ScheduleAddViewModel(DataContainerApplication().container.scheduleRepositoryOffline)
         }
         initializer {
-            RemindViewModel(DataContainerApplication().container.scheduleRepositoryOffline)
+            ScheduleListViewModel(DataContainerApplication().container.scheduleRepositoryOffline)
         }
     }
 }

@@ -51,7 +51,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.compose.ui.window.Popup
-import myapp.chronify.ui.element.DateTimePickerDialogTest
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
@@ -363,20 +362,13 @@ fun TimePickerFieldToModal(modifier: Modifier = Modifier) {
             }
     )
 
-    // if (showModal) {
-    //     AdvancedTimePickerExample(
-    //         onConfirm = { selectedTime = it },
-    //         onDismiss = { showModal = false }
-    //     )
-    // }
-
     if (showModal) {
-        DateTimePickerDialogTest(
-            dialogTitle = "Select Time",
-            onConfirm = { },
+        AdvancedTimePickerExample(
+            onConfirm = { selectedTime = it },
             onDismiss = { showModal = false }
         )
     }
+
 }
 
 @OptIn(ExperimentalMaterial3Api::class)

@@ -76,6 +76,7 @@ dependencies {
     implementation("androidx.navigation:navigation-compose:${rootProject.extra["nav_version"]}")
     implementation("androidx.room:room-ktx:${rootProject.extra["room_version"]}")
     implementation("androidx.room:room-runtime:${rootProject.extra["room_version"]}")
+    implementation("com.google.firebase:protolite-well-known-types:18.0.0")
     ksp("androidx.room:room-compiler:${rootProject.extra["room_version"]}")
 
     implementation ("org.jetbrains.kotlinx:kotlinx-collections-immutable-jvm:0.3.4")

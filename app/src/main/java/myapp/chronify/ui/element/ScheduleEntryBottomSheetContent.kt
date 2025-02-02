@@ -10,6 +10,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.AssistChipDefaults
 import androidx.compose.material3.Checkbox
@@ -17,6 +19,8 @@ import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.InputChip
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
@@ -53,10 +57,10 @@ import myapp.chronify.datamodel.Schedule
 import myapp.chronify.datamodel.ScheduleType
 import myapp.chronify.datamodel.getIcon
 import myapp.chronify.datamodel.getLocalizedName
+import myapp.chronify.ui.element.screen.ScheduleDTText
 import myapp.chronify.ui.theme.bluesimple.BlueSimpleTheme
 import myapp.chronify.ui.viewmodel.AppViewModelProvider
 import myapp.chronify.ui.viewmodel.ScheduleAddViewModel
-import myapp.chronify.utils.MyDateTimeFormatter.toFriendlyString
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -112,41 +116,7 @@ fun AddScheduleBottomSheetContent(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            val focusRequester = remember { FocusRequester() }
-            var textFieldValueState = remember { mutableStateOf(TextFieldValue("Initial Text")) }
-
-            LaunchedEffect(Unit) {
-                delay(300) // Optional delay to ensure the TextField is fully composed
-                focusRequester.requestFocus()
-            }
-
-            OutlinedTextField(
-                value = textFieldValueState.value,
-                onValueChange = {
-                    onValueChange(schedule.copy(title = it.text))
-                    textFieldValueState.value = it
-                },
-                label = { stringResource(string.title_req) },
-                // colors = OutlinedTextFieldDefaults.colors(
-                //     focusedContainerColor = MaterialTheme.colorScheme.secondaryContainer,
-                //     unfocusedContainerColor = MaterialTheme.colorScheme.secondaryContainer,
-                //     disabledContainerColor = MaterialTheme.colorScheme.secondaryContainer,
-                // ),
-                modifier = Modifier
-                    .weight(1f)
-                    .focusRequester(focusRequester)
-                    .onFocusChanged { focusState ->
-                        if (focusState.isFocused) {
-                            textFieldValueState.value = textFieldValueState.value.copy(
-                                selection = TextRange(
-                                    0,
-                                    textFieldValueState.value.text.length
-                                )
-                            )
-                        }
-                    }
-
-            )
+            AutoFocusedOutlineTextField(onValueChange, schedule, modifier = Modifier.weight(1f))
             Spacer(modifier = Modifier.width(dimensionResource(dimen.padding_tiny)))
             Checkbox(
                 checked = schedule.isFinished,
@@ -165,7 +135,7 @@ fun AddScheduleBottomSheetContent(
         Row(
             modifier = Modifier.fillMaxWidth()
         ) {
-            TypeMenu(
+            TypeMenuChip(
                 ScheduleType.REMINDER,
                 onSelect = {
                     onValueChange(
@@ -179,25 +149,24 @@ fun AddScheduleBottomSheetContent(
                     )
                 }
             )
-            AssistChip(
+
+            DateTimeChip(
                 onClick = { showDateTimePicker = true },
                 label = {
-                    Text(
-                        if (schedule.beginDT == null && schedule.endDT == null) {
-                            stringResource(string.date_time_picker_label)
-                        } else {
-                            "${schedule.beginDT?.toFriendlyString() ?: "?"} - ${schedule.endDT?.toFriendlyString() ?: "?"}"
-                        }
+                    ScheduleDTText(schedule, placeholderStr = stringResource(string.date_time_picker_label))
+                },
+                isSelected = !(schedule.beginDT == null && schedule.endDT == null),
+                onClose = {
+                    onValueChange(
+                        schedule.copy(
+                            beginDT = null,
+                            endDT = null
+                        )
                     )
                 },
-                leadingIcon = {
-                    Icon(
-                        painterResource(drawable.calendar_add_on_24px),
-                        contentDescription = stringResource(string.date_time_picker_label),
-                        Modifier.size(AssistChipDefaults.IconSize)
-                    )
-                }
+                modifier = Modifier.align(Alignment.CenterVertically)
             )
+
         }
     }
 
@@ -217,9 +186,50 @@ fun AddScheduleBottomSheetContent(
     }
 }
 
+@Composable
+private fun AutoFocusedOutlineTextField(
+    onValueChange: (Schedule) -> Unit,
+    schedule: Schedule,
+    modifier: Modifier = Modifier
+) {
+    val focusRequester = remember { FocusRequester() }
+    val textFieldValueState = remember { mutableStateOf(TextFieldValue("Initial Text")) }
+
+    LaunchedEffect(Unit) {
+        delay(300) // Optional delay to ensure the TextField is fully composed
+        focusRequester.requestFocus()
+    }
+
+    OutlinedTextField(
+        value = textFieldValueState.value,
+        onValueChange = {
+            onValueChange(schedule.copy(title = it.text))
+            textFieldValueState.value = it
+        },
+        label = { stringResource(string.title_req) },
+        // colors = OutlinedTextFieldDefaults.colors(
+        //     focusedContainerColor = MaterialTheme.colorScheme.secondaryContainer,
+        //     unfocusedContainerColor = MaterialTheme.colorScheme.secondaryContainer,
+        //     disabledContainerColor = MaterialTheme.colorScheme.secondaryContainer,
+        // ),
+        modifier = modifier
+            .focusRequester(focusRequester)
+            .onFocusChanged { focusState ->
+                if (focusState.isFocused) {
+                    textFieldValueState.value = textFieldValueState.value.copy(
+                        selection = TextRange(
+                            0,
+                            textFieldValueState.value.text.length
+                        )
+                    )
+                }
+            }
+    )
+}
+
 
 @Composable
-fun TypeMenu(
+fun TypeMenuChip(
     initialType: ScheduleType,
     onSelect: (ScheduleType) -> Unit = {},
     modifier: Modifier = Modifier
@@ -269,7 +279,44 @@ fun TypeMenu(
 @Preview(showBackground = true)
 @Composable
 fun TypeMenuPreview() {
-    TypeMenu(ScheduleType.REMINDER)
+    TypeMenuChip(ScheduleType.REMINDER)
+}
+
+@Composable
+fun DateTimeChip(
+    label: @Composable () -> Unit,
+    isSelected: Boolean = false,
+    onClick: () -> Unit = {},
+    onClose: () -> Unit = {},
+    enabled: Boolean = true,
+    modifier: Modifier = Modifier
+) {
+    InputChip(
+        selected = isSelected,
+        onClick = onClick,
+        label = label,
+        modifier = modifier,
+        enabled = enabled,
+        leadingIcon = {
+            Icon(
+                painterResource(drawable.calendar_add_on_24px),
+                contentDescription = stringResource(string.date_time_picker_label),
+                Modifier.size(AssistChipDefaults.IconSize)
+            )
+        },
+        trailingIcon = {
+            IconButton(
+                onClick = onClose,
+                modifier = Modifier.size(AssistChipDefaults.IconSize)
+            ) {
+                Icon(
+                    Icons.Default.Close,
+                    contentDescription = stringResource(string.clear_date_time),
+                    Modifier.size(AssistChipDefaults.IconSize)
+                )
+            }
+        }
+    )
 }
 
 @Preview(showBackground = true)

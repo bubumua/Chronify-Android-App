@@ -1,9 +1,7 @@
-package myapp.chronify.ui.element
+package myapp.chronify.ui.element.screen
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.calculateEndPadding
@@ -22,11 +20,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalLayoutDirection
@@ -40,6 +34,8 @@ import myapp.chronify.R.dimen
 import myapp.chronify.datamodel.Schedule
 import myapp.chronify.datamodel.ScheduleType
 import myapp.chronify.datamodel.ScheduleUiState
+import myapp.chronify.ui.element.AppTopBar
+import myapp.chronify.ui.element.EnumDropdown
 import myapp.chronify.ui.navigation.NavigationDestination
 import myapp.chronify.ui.theme.bluesimple.BlueSimpleTheme
 import myapp.chronify.ui.viewmodel.ScheduleAddViewModel
@@ -65,8 +61,8 @@ fun ScheduleAddScreen(
         topBar = {
             AppTopBar(
                 title = stringResource(string.add_schedule_title),
-                canNavigateBack = canNavigateBack,
-                onBackClick = onNavigateUp
+                // canNavigateBack = canNavigateBack,
+                // onBackClick = onNavigateUp
             )
         }
     ) { innerPadding ->

@@ -11,8 +11,9 @@ import kotlinx.coroutines.flow.SharingStarted
 
 data class RemindUiState(val scheduleList: List<ScheduleEntity> = listOf())
 
-class RemindViewModel(val scheduleRepository: ScheduleRepository) : ViewModel() {
+data class HistoryUiState(val scheduleList: List<ScheduleEntity> = listOf())
 
+class ScheduleListViewModel(val scheduleRepository: ScheduleRepository) : ViewModel() {
 
     companion object {
         private const val TIMEOUT_MILLIS = 5_000L
@@ -26,6 +27,13 @@ class RemindViewModel(val scheduleRepository: ScheduleRepository) : ViewModel() 
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
             initialValue = RemindUiState()
+        )
+
+    val historyUiState: StateFlow<HistoryUiState> =
+        scheduleRepository.getFinishedSchedulesStream().map { HistoryUiState(it) }.stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(myapp.chronify.ui.viewmodel.TIMEOUT_MILLIS),
+            initialValue = HistoryUiState()
         )
 
     suspend fun deleteSchedule(schedule: ScheduleEntity){

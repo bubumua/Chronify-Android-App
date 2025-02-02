@@ -102,7 +102,7 @@ object MyDateTimeFormatter {
 
         return when {
             dateTime.toLocalDate() == now.toLocalDate() ->
-                "${stringResource(string.today)} ${dateTime.format(timeOnlyFormatter)}"
+                "${dateTime.format(timeOnlyFormatter)}"
             dateTime.toLocalDate() == now.minusDays(1).toLocalDate() ->
                 "${stringResource(string.yesterday)} ${dateTime.format(timeOnlyFormatter)}"
             dateTime.year == now.year ->

@@ -1,4 +1,4 @@
-package myapp.chronify.ui.element
+package myapp.chronify.ui.element.screen
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
@@ -33,14 +33,18 @@ import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalDrawerSheet
+import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.rememberDrawerState
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -57,7 +61,10 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
@@ -69,14 +76,20 @@ import kotlinx.coroutines.launch
 import myapp.chronify.R.dimen
 import myapp.chronify.R.string
 import myapp.chronify.data.schedule.ScheduleEntity
+import myapp.chronify.datamodel.Schedule
 import myapp.chronify.datamodel.ScheduleType
+import myapp.chronify.datamodel.getLocalizedName
+import myapp.chronify.ui.element.AddScheduleBottomSheet
+import myapp.chronify.ui.element.AppTopBar
 import myapp.chronify.ui.navigation.NavigationDestination
 import myapp.chronify.ui.theme.BusScheduleTheme
 import myapp.chronify.ui.viewmodel.AppViewModelProvider
-import myapp.chronify.ui.viewmodel.RemindViewModel
+import myapp.chronify.ui.viewmodel.ScheduleListViewModel
+import myapp.chronify.utils.MyDateTimeFormatter.toFriendlyString
 import kotlin.math.roundToInt
+import myapp.chronify.utils.toSchedule
 
-object RemindScreenDestination : NavigationDestination {
+object ReminderScreenDestination : NavigationDestination {
     override val route = "mark"
     override val titleRes = string.app_name
 }
@@ -85,65 +98,87 @@ enum class ScheduleItemSwipeAnchorValue { Read, Resting, Delete }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun RemindScreen(
+fun ReminderScreen(
     modifier: Modifier = Modifier,
-    viewModel: RemindViewModel = viewModel(factory = AppViewModelProvider.Factory)
+    viewModel: ScheduleListViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
     val remindUiState by viewModel.remindUiState.collectAsState()
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
+    val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val sheetState = rememberModalBottomSheetState()
     var showBottomSheet by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
 
-    Scaffold(
-        modifier = modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
-        topBar = {
-            AppTopBar(
-                title = stringResource(string.app_name),
-                canNavigateBack = false,
-                scrollBehavior = scrollBehavior
-            )
+    ModalNavigationDrawer(
+        drawerState = drawerState,
+        drawerContent = {
+            ModalDrawerSheet {
+                Text("this is nav drawer")
+            }
         },
-        floatingActionButton = {
-            FloatingActionButton(
-                // onClick = navigateToAddScreen,
-                onClick = { showBottomSheet = true },
-                modifier = Modifier.padding(dimensionResource(dimen.padding_large))
-            ) {
-                Icon(
-                    imageVector = Icons.Filled.Add,
-                    contentDescription = stringResource(string.add_button)
+    ) {
+        Scaffold(
+            modifier = modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
+            topBar = {
+                AppTopBar(
+                    title = stringResource(string.app_name),
+                    navigationIcon = {
+                        IconButton(onClick = {
+                            scope.launch {
+                                if (drawerState.isClosed) {
+                                    drawerState.open()
+                                } else {
+                                    drawerState.close()
+                                }
+                            }
+                        }) {
+                            Icon(Icons.Default.Menu, contentDescription = "Menu")
+                        }
+                    },
+                    scrollBehavior = scrollBehavior
+                )
+            },
+            floatingActionButton = {
+                FloatingActionButton(
+                    // onClick = navigateToAddScreen,
+                    onClick = { showBottomSheet = true },
+                    modifier = Modifier.padding(dimensionResource(dimen.padding_large))
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.Add,
+                        contentDescription = stringResource(string.add_button)
+                    )
+                }
+            }
+        ) { innerPadding ->
+            RemindBody(
+                scheduleList = remindUiState.scheduleList,
+                onListItemClick = {},
+                modifier = modifier.fillMaxSize(),
+                contentPadding = innerPadding
+            )
+            // Bottom sheet
+            if (showBottomSheet) {
+                AddScheduleBottomSheet(
+                    sheetState = sheetState,
+                    onDismissRequest = {
+                        scope.launch { sheetState.hide() }.invokeOnCompletion {
+                            if (!sheetState.isVisible) {
+                                showBottomSheet = false
+                            }
+                        }
+                    },
                 )
             }
-        }
-    ) { innerPadding ->
-        RemindBody(
-            scheduleList = remindUiState.scheduleList,
-            onListItemClick = {},
-            modifier = modifier.fillMaxSize(),
-            contentPadding = innerPadding
-        )
-        // Bottom sheet
-        if (showBottomSheet) {
-            AddScheduleBottomSheet(
-                sheetState = sheetState,
-                onDismissRequest = {
-                    scope.launch { sheetState.hide() }.invokeOnCompletion {
-                        if (!sheetState.isVisible) {
-                            showBottomSheet = false
-                        }
-                    }
-                },
-            )
         }
     }
 }
 
 @Composable
-fun RemindBody(
+private fun RemindBody(
     scheduleList: List<ScheduleEntity> = emptyList(),
     onListItemClick: (Int) -> Unit = {},
-    viewModel: RemindViewModel = viewModel(factory = AppViewModelProvider.Factory),
+    viewModel: ScheduleListViewModel = viewModel(factory = AppViewModelProvider.Factory),
     modifier: Modifier = Modifier,
     contentPadding: PaddingValues = PaddingValues(0.dp),
 ) {
@@ -177,9 +212,9 @@ fun RemindBody(
 }
 
 @Composable
-fun ScheduleList(
+private fun ScheduleList(
     itemList: List<ScheduleEntity> = emptyList(),
-    viewModel: RemindViewModel = viewModel(factory = AppViewModelProvider.Factory),
+    viewModel: ScheduleListViewModel = viewModel(factory = AppViewModelProvider.Factory),
     coroutineScope: CoroutineScope = rememberCoroutineScope(),
     onItemClick: (ScheduleEntity) -> Unit = {},
     modifier: Modifier = Modifier,
@@ -221,7 +256,7 @@ fun ScheduleList(
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun ScheduleItem(
+private fun ScheduleItem(
     item: ScheduleEntity,
     onCheck: (ScheduleEntity) -> Unit = {},
     onDelete: (ScheduleEntity) -> Unit = {},
@@ -270,21 +305,34 @@ fun ScheduleItem(
                 },
             elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
         ) {
-            // TODO: adjust content
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(dimensionResource(dimen.padding_small)),
-                horizontalArrangement = Arrangement.SpaceBetween
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
             ) {
                 Column {
                     Text(text = item.title, style = MaterialTheme.typography.titleLarge)
-                    Text(text = item.type)
+                    if (item.beginDT != null || item.endDT != null) {
+                        ScheduleDTText(item)
+                    }
                 }
-                Checkbox(
-                    checked = item.isFinished,
-                    onCheckedChange = { onCheck(item) }
-                )
+                Row(
+                    horizontalArrangement = Arrangement.End,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    // type text
+                    Text(
+                        text = item.toSchedule().type.getLocalizedName(),
+                        style = MaterialTheme.typography.titleMedium
+                    )
+                    // isFinished checkbox
+                    Checkbox(
+                        checked = item.isFinished,
+                        onCheckedChange = { onCheck(item) }
+                    )
+                }
             }
         }
 
@@ -344,6 +392,48 @@ fun ScheduleItem(
 
 }
 
+@Composable
+fun ScheduleDTText(
+    schedule: Schedule,
+    placeholderStr: String = "",
+    modifier: Modifier = Modifier
+) {
+    val annotatedString = buildAnnotatedString {
+        if (schedule.beginDT == null && schedule.endDT == null) {
+            append(placeholderStr)
+        } else {
+            if (schedule.beginDT != null) {
+                if (schedule.beginDT <= System.currentTimeMillis()) {
+                    withStyle(style = SpanStyle(color = MaterialTheme.colorScheme.error)) {
+                        append(schedule.beginDT.toFriendlyString())
+                    }
+                } else {
+                    append(schedule.beginDT.toFriendlyString())
+                }
+            } else {
+                append("?")
+            }
+            if (schedule.endDT != null && schedule.endDT != schedule.beginDT) {
+                append(" - ")
+                append(schedule.endDT.toFriendlyString())
+            }
+        }
+    }
+    Text(
+        text = annotatedString,
+        style = MaterialTheme.typography.labelMedium,
+        modifier = modifier
+    )
+}
+
+@Composable
+fun ScheduleDTText(
+    schedule: ScheduleEntity,
+    placeholderStr: String = "",
+    modifier: Modifier = Modifier
+) {
+    ScheduleDTText(schedule.toSchedule(), placeholderStr, modifier = modifier)
+}
 
 @Preview(showBackground = true)
 @Composable

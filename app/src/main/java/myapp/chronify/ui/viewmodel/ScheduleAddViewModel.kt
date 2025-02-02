@@ -9,7 +9,7 @@ import myapp.chronify.datamodel.Schedule
 import myapp.chronify.datamodel.ScheduleUiState
 import myapp.chronify.utils.toScheduleEntity
 
-class ScheduleAddViewModel(private val scheduleRepository: ScheduleRepository): ViewModel() {
+class ScheduleAddViewModel(private val scheduleRepository: ScheduleRepository) : ViewModel() {
     /**
      * Holds current schedule ui state
      */
@@ -21,10 +21,13 @@ class ScheduleAddViewModel(private val scheduleRepository: ScheduleRepository): 
      */
     fun updateUiState(schedule: Schedule) {
         scheduleUiState =
-            ScheduleUiState(schedule = schedule, isValid = validateInput(schedule))
+            scheduleUiState.copy(
+                schedule = schedule,
+                isValid = validateInput(schedule)
+            )
     }
 
-    private fun validateInput(schedule: Schedule=scheduleUiState.schedule): Boolean {
+    private fun validateInput(schedule: Schedule = scheduleUiState.schedule): Boolean {
         return with(schedule) {
             title.isNotBlank()
         }
