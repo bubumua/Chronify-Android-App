@@ -117,7 +117,11 @@ fun ReminderScreen(
         drawerState = drawerState,
         drawerContent = {
             ModalDrawerSheet {
-                NavDrawerContent(ReminderScreenDestination.route, navController = navController)
+                NavDrawerContent(
+                    ReminderScreenDestination.route,
+                    navController = navController,
+                    drawerState = drawerState
+                )
             }
         },
     ) {

@@ -55,14 +55,17 @@ fun HistoryScreen(
     val historyUiState by viewModel.historyUiState.collectAsState()
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
-    val sheetState = rememberModalBottomSheetState()
     val scope = rememberCoroutineScope()
 
     ModalNavigationDrawer(
         drawerState = drawerState,
         drawerContent = {
             ModalDrawerSheet {
-                NavDrawerContent(HistoryScreenDestination.route, navController = navController)
+                NavDrawerContent(
+                    HistoryScreenDestination.route,
+                    navController = navController,
+                    drawerState = drawerState
+                )
             }
         },
     ) {

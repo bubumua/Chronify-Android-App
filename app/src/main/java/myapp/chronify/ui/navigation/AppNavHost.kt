@@ -1,7 +1,10 @@
 package myapp.chronify.ui.navigation
 
+import android.app.Activity
+import androidx.activity.compose.BackHandler
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -22,6 +25,9 @@ fun AppNavHost(
     navController: NavHostController = rememberNavController(),
     modifier: Modifier = Modifier,
 ) {
+    val context = LocalContext.current
+    val activity = context as? Activity
+
     NavHost(
         navController = navController,
         startDestination = ReminderScreenDestination.route,
@@ -32,6 +38,12 @@ fun AppNavHost(
             ReminderScreen(
                 navController = navController,
                 navigateToEdit = { navController.navigate("${EditScheduleScreenDestination.route}/$it") })
+
+            // 拦截返回键事件
+            BackHandler {
+                // 退出应用程序
+                activity?.finish()
+            }
         }
         composable(route = HistoryScreenDestination.route) {
             HistoryScreen(
