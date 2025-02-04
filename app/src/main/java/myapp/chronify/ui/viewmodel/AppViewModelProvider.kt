@@ -2,6 +2,7 @@ package myapp.chronify.ui.viewmodel
 
 import android.app.Application
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.createSavedStateHandle
 import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
@@ -20,12 +21,18 @@ fun CreationExtras.DataContainerApplication(): DataContainerApplication =
  * Provides Factory to create instance of ViewModel for the entire app
  */
 object AppViewModelProvider {
-    val Factory : ViewModelProvider.Factory = viewModelFactory{
-        initializer{
+    val Factory: ViewModelProvider.Factory = viewModelFactory {
+        initializer {
+            ScheduleListViewModel(DataContainerApplication().container.scheduleRepositoryOffline)
+        }
+        initializer {
             ScheduleAddViewModel(DataContainerApplication().container.scheduleRepositoryOffline)
         }
         initializer {
-            ScheduleListViewModel(DataContainerApplication().container.scheduleRepositoryOffline)
+            ScheduleEditViewModel(
+                this.createSavedStateHandle(),
+                DataContainerApplication().container.scheduleRepositoryOffline
+            )
         }
     }
 }

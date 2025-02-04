@@ -69,6 +69,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavHostController
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
@@ -81,6 +82,7 @@ import myapp.chronify.datamodel.ScheduleType
 import myapp.chronify.datamodel.getLocalizedName
 import myapp.chronify.ui.element.AddScheduleBottomSheet
 import myapp.chronify.ui.element.AppTopBar
+import myapp.chronify.ui.element.NavDrawerContent
 import myapp.chronify.ui.navigation.NavigationDestination
 import myapp.chronify.ui.theme.BusScheduleTheme
 import myapp.chronify.ui.viewmodel.AppViewModelProvider
@@ -99,8 +101,10 @@ enum class ScheduleItemSwipeAnchorValue { Read, Resting, Delete }
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ReminderScreen(
+    navController: NavHostController,
+    navigateToEdit: (Int) -> Unit = {},
+    viewModel: ScheduleListViewModel = viewModel(factory = AppViewModelProvider.Factory),
     modifier: Modifier = Modifier,
-    viewModel: ScheduleListViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
     val remindUiState by viewModel.remindUiState.collectAsState()
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
@@ -113,7 +117,7 @@ fun ReminderScreen(
         drawerState = drawerState,
         drawerContent = {
             ModalDrawerSheet {
-                Text("this is nav drawer")
+                NavDrawerContent(ReminderScreenDestination.route,navController=navController)
             }
         },
     ) {
@@ -132,7 +136,7 @@ fun ReminderScreen(
                                 }
                             }
                         }) {
-                            Icon(Icons.Default.Menu, contentDescription = "Menu")
+                            Icon(Icons.Default.Menu, contentDescription = stringResource(string.menu))
                         }
                     },
                     scrollBehavior = scrollBehavior
@@ -151,9 +155,10 @@ fun ReminderScreen(
                 }
             }
         ) { innerPadding ->
-            RemindBody(
+            ReminderBody(
                 scheduleList = remindUiState.scheduleList,
-                onListItemClick = {},
+                onListItemClick = navigateToEdit,
+                coroutineScope = scope,
                 modifier = modifier.fillMaxSize(),
                 contentPadding = innerPadding
             )
@@ -175,14 +180,14 @@ fun ReminderScreen(
 }
 
 @Composable
-private fun RemindBody(
+private fun ReminderBody(
     scheduleList: List<ScheduleEntity> = emptyList(),
     onListItemClick: (Int) -> Unit = {},
     viewModel: ScheduleListViewModel = viewModel(factory = AppViewModelProvider.Factory),
+    coroutineScope: CoroutineScope = rememberCoroutineScope(),
     modifier: Modifier = Modifier,
     contentPadding: PaddingValues = PaddingValues(0.dp),
 ) {
-    val coroutineScope = rememberCoroutineScope()
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -212,7 +217,7 @@ private fun RemindBody(
 }
 
 @Composable
-private fun ScheduleList(
+fun ScheduleList(
     itemList: List<ScheduleEntity> = emptyList(),
     viewModel: ScheduleListViewModel = viewModel(factory = AppViewModelProvider.Factory),
     coroutineScope: CoroutineScope = rememberCoroutineScope(),
@@ -439,7 +444,7 @@ fun ScheduleDTText(
 @Composable
 fun RemindBodyPreview() {
     BusScheduleTheme {
-        RemindBody(
+        ReminderBody(
             listOf(
                 ScheduleEntity(1, "Drink", ScheduleType.DEFAULT.name, false),
                 ScheduleEntity(2, "Eat", ScheduleType.DEFAULT.name, false),

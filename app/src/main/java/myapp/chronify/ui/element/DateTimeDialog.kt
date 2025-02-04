@@ -92,9 +92,10 @@ fun DateTimePickerDialog(
                     // pick date
                     0 -> {
                         SimpleDateRangePicker(
+                            initialDateRange = selectedDateRange,
                             startFromSunday = false,
-                            onDateRangeSelected = { dateRange ->
-                                selectedDateRange = dateRange
+                            onDateRangeSelected = { dr ->
+                                selectedDateRange = dr
                             },
                         )
                     }

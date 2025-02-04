@@ -23,7 +23,7 @@ class ScheduleListViewModel(val scheduleRepository: ScheduleRepository) : ViewMo
      * Holds mark screen ui state. The list of schedules are retrieved from [ScheduleRepository] and mapped to [RemindUiState]
      */
     val remindUiState: StateFlow<RemindUiState> =
-        scheduleRepository.getAllSchedulesStream().map { RemindUiState(it) }.stateIn(
+        scheduleRepository.getUnfinishedSchedulesStream().map { RemindUiState(it) }.stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
             initialValue = RemindUiState()

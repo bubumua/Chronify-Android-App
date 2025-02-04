@@ -73,10 +73,11 @@ inline fun <reified T : Enum<T>> EnumDropdown(
     crossinline onValueSelected: (T) -> Unit = {},
     modifier: Modifier = Modifier
 ) {
-    var expanded by remember { mutableStateOf(false) }
     val options = enumValues<T>().toList()
+    var expanded by remember { mutableStateOf(false) }
     var selectedEnumItem by remember { mutableStateOf(initialValue) }
 
+    // Log.d("EnumDropdown", "selectedEnumItem: $selectedEnumItem")
     ExposedDropdownMenuBox(
         expanded = expanded,
         onExpandedChange = { expanded = it },

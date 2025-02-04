@@ -3,6 +3,7 @@ package myapp.chronify.ui.element
 
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -29,6 +30,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -47,16 +49,18 @@ data class DateRange(
 // 附带额外信息的日期数据类
 data class DateWithInfo(
     val date: LocalDate,
-    val isCurrentMonth: Boolean
+    val isCurrentMonth: Boolean,
+    val isToday: Boolean = date == LocalDate.now()
 )
 
 @Composable
 fun SimpleDateRangePicker(
+    initialDateRange: DateRange,
     startFromSunday: Boolean = false,
     onDateRangeSelected: (DateRange) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    var dateRange by remember { mutableStateOf(DateRange()) }
+    var dateRange by remember { mutableStateOf(initialDateRange) }
     var currentYearMonth by remember { mutableStateOf(YearMonth.now()) }
 
     Column(
@@ -175,7 +179,10 @@ private fun YearMonthMenu(
 }
 
 @Composable
-private fun YearMonthScrollableSelector(currentYearMonth: YearMonth, onYearMonthSelected: (YearMonth) -> Unit) {
+private fun YearMonthScrollableSelector(
+    currentYearMonth: YearMonth,
+    onYearMonthSelected: (YearMonth) -> Unit
+) {
     // 年份列表
     val YEARS = (2000..2099).toList()
     // 月份列表
@@ -271,6 +278,7 @@ private fun DaysGrid(
                         dateWithInfo.date.isAfter(dateRange.startDate) &&
                         dateWithInfo.date.isBefore(dateRange.endDate),
                 onDateSelected = onDateSelected,
+                isToday = dateWithInfo.isToday,
                 // 添加淡入淡出动画
                 modifier = Modifier.animateContentSize()
             )
@@ -284,20 +292,32 @@ private fun DayCell(
     isCurrentMonth: Boolean,
     isSelected: Boolean,
     isInRange: Boolean,
+    isToday: Boolean,
     onDateSelected: (LocalDate) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Box(
         modifier = modifier
             .aspectRatio(1f)
-            // .padding(2.dp)
+            // .padding(4.dp)
+            .then(
+                if (isToday) {
+                    Modifier.border(
+                        width = 4.dp,
+                        color = MaterialTheme.colorScheme.onPrimary,
+                        shape = CircleShape
+                    )
+                } else {
+                    Modifier
+                }
+            )
             .background(
                 when {
                     isSelected -> MaterialTheme.colorScheme.primary
                     isInRange -> MaterialTheme.colorScheme.primary.copy(alpha = 0.3f)
                     else -> Color.Transparent
                 },
-                shape = CircleShape
+                shape = RectangleShape
             )
             .clickable { onDateSelected(date) },
         contentAlignment = Alignment.Center
@@ -307,6 +327,7 @@ private fun DayCell(
             color = when {
                 isSelected -> MaterialTheme.colorScheme.onPrimary
                 !isCurrentMonth -> MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
+                isToday -> MaterialTheme.colorScheme.primary
                 else -> MaterialTheme.colorScheme.onSurface
             },
             style = MaterialTheme.typography.bodyMedium
@@ -381,6 +402,7 @@ fun DateRangePickerDemo() {
             Text("End Date: ${selectedDateRange.endDate}")
         }
         SimpleDateRangePicker(
+            initialDateRange = selectedDateRange,
             startFromSunday = false,
             onDateRangeSelected = { dateRange ->
                 selectedDateRange = dateRange

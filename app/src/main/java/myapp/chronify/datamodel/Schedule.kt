@@ -3,7 +3,7 @@ package myapp.chronify.datamodel
 data class Schedule(
     val id: Int = 0,
     val title: String = "",
-    val type: ScheduleType = ScheduleType.DEFAULT,
+    val type: ScheduleType = ScheduleType.REMINDER,
     val isFinished: Boolean = false,
     val createdDT: Long = System.currentTimeMillis(),
     val beginDT: Long? = null,

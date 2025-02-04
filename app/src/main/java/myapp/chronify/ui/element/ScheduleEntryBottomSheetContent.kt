@@ -116,7 +116,12 @@ fun AddScheduleBottomSheetContent(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            AutoFocusedOutlineTextField(onValueChange, schedule, modifier = Modifier.weight(1f))
+            AutoFocusedOutlineTextField(
+                schedule = schedule,
+                onValueChange = onValueChange,
+                modifier = Modifier.weight(1f),
+                initialTextString = ""
+            )
             Spacer(modifier = Modifier.width(dimensionResource(dimen.padding_tiny)))
             Checkbox(
                 checked = schedule.isFinished,
@@ -136,7 +141,7 @@ fun AddScheduleBottomSheetContent(
             modifier = Modifier.fillMaxWidth()
         ) {
             TypeMenuChip(
-                ScheduleType.REMINDER,
+                initialType = ScheduleType.REMINDER,
                 onSelect = {
                     onValueChange(
                         schedule.copy(
@@ -151,11 +156,14 @@ fun AddScheduleBottomSheetContent(
             )
 
             DateTimeChip(
-                onClick = { showDateTimePicker = true },
                 label = {
-                    ScheduleDTText(schedule, placeholderStr = stringResource(string.date_time_picker_label))
+                    ScheduleDTText(
+                        schedule,
+                        placeholderStr = stringResource(string.date_time_picker_label)
+                    )
                 },
                 isSelected = !(schedule.beginDT == null && schedule.endDT == null),
+                onClick = { showDateTimePicker = true },
                 onClose = {
                     onValueChange(
                         schedule.copy(
@@ -188,12 +196,13 @@ fun AddScheduleBottomSheetContent(
 
 @Composable
 private fun AutoFocusedOutlineTextField(
+    initialTextString: String = "",
     onValueChange: (Schedule) -> Unit,
     schedule: Schedule,
     modifier: Modifier = Modifier
 ) {
     val focusRequester = remember { FocusRequester() }
-    val textFieldValueState = remember { mutableStateOf(TextFieldValue("Initial Text")) }
+    val textFieldValueState = remember { mutableStateOf(TextFieldValue(initialTextString)) }
 
     LaunchedEffect(Unit) {
         delay(300) // Optional delay to ensure the TextField is fully composed
@@ -305,16 +314,17 @@ fun DateTimeChip(
             )
         },
         trailingIcon = {
-            IconButton(
-                onClick = onClose,
-                modifier = Modifier.size(AssistChipDefaults.IconSize)
-            ) {
-                Icon(
-                    Icons.Default.Close,
-                    contentDescription = stringResource(string.clear_date_time),
-                    Modifier.size(AssistChipDefaults.IconSize)
-                )
-            }
+            if (isSelected)
+                IconButton(
+                    onClick = onClose,
+                    modifier = Modifier.size(AssistChipDefaults.IconSize)
+                ) {
+                    Icon(
+                        Icons.Default.Close,
+                        contentDescription = stringResource(string.clear_date_time),
+                        Modifier.size(AssistChipDefaults.IconSize)
+                    )
+                }
         }
     )
 }
