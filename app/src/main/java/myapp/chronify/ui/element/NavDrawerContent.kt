@@ -55,14 +55,13 @@ fun NavDrawerContent(
                     drawerState.close()
                 }
                 if (currentRoute != ReminderScreenDestination.route)
-                    navController.navigate(ReminderScreenDestination.route)
-                // 清除导航历史记录
-                // {
-                //     popUpTo(navController.graph.startDestinationId) {
-                //         inclusive = true
-                //     }
-                //     launchSingleTop = true
-                // }
+                    navController.navigate(ReminderScreenDestination.route) {
+                        // 清除导航历史记录
+                        //     popUpTo(navController.graph.startDestinationId) {
+                        //         inclusive = true
+                        //     }
+                        //     launchSingleTop = true
+                    }
             })
         // history
         NavigationDrawerItem(label = { Text(stringResource(string.todo_history)) },
