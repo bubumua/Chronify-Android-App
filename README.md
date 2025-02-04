@@ -26,6 +26,8 @@ Schedule type: CYCLICAL, REMINDER, MISSION, CHECK_IN, DEFAULT
 
 ## Project structure
 
+The schedule data are stored in a Room database. Schedule items are represented by the `Schedule` class and queries on the data table are made by the `ScheduleDao` class. The app includes some view model to access the `ScheduleDao` and format data to be display to users.
+
 定义接口 ItemsRepository 并用 OfflineItemsRepository 实现它有以下几个好处：  
 - 解耦：接口将具体实现与使用者解耦，使得代码更灵活。你可以在不改变使用者代码的情况下，轻松替换 OfflineItemsRepository 的实现。  
 - 可测试性：使用接口可以更容易地编写单元测试。你可以创建一个 ItemsRepository 的模拟实现来测试依赖它的代码，而不需要依赖实际的数据库操作。  
@@ -33,3 +35,13 @@ Schedule type: CYCLICAL, REMINDER, MISSION, CHECK_IN, DEFAULT
 - 遵循SOLID原则：接口和实现分离符合面向对象设计中的SOLID原则，特别是依赖倒置原则（DIP），这有助于创建更健壮和可维护的代码。 
 通过这种方式，你的代码将更具灵活性、可维护性和可测试性。
 
+# For developers
+
+1. Install Android Studio, if you don't already have it.
+2. Download the sample.
+3. Import the sample into Android Studio.
+4. Build and run the sample.
+
+# References
+
+- [AnchoredDraggable Modifier](https://canopas.com/how-to-implement-swipe-to-action-using-anchoreddraggable-in-jetpack-compose-cccb22e44dff)
