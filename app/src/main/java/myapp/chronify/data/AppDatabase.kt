@@ -16,6 +16,7 @@
 package myapp.chronify.data
 
 import android.content.Context
+import androidx.room.AutoMigration
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
@@ -24,8 +25,15 @@ import myapp.chronify.data.bus.BusScheduleDao
 import myapp.chronify.data.schedule.ScheduleDao
 import myapp.chronify.data.schedule.ScheduleEntity
 
-@Database(entities = [BusSchedule::class, ScheduleEntity::class], version = 1, exportSchema = false)
-abstract class AppDatabase: RoomDatabase() {
+@Database(
+    entities = [BusSchedule::class, ScheduleEntity::class],
+    version = 2,
+    exportSchema = true,
+    autoMigrations = [
+        AutoMigration(from = 1, to = 2)
+    ]
+)
+abstract class AppDatabase : RoomDatabase() {
     abstract fun busScheduleDao(): BusScheduleDao
     abstract fun scheduleDao(): ScheduleDao
 

@@ -61,6 +61,10 @@ android {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
     }
+    sourceSets {
+        // Adds exported schema location as test app assets.
+        getByName("androidTest").assets.srcDir("$projectDir/schemas")
+    }
 }
 
 dependencies {
@@ -77,10 +81,29 @@ dependencies {
     implementation("androidx.room:room-ktx:${rootProject.extra["room_version"]}")
     implementation("androidx.room:room-runtime:${rootProject.extra["room_version"]}")
     implementation("com.google.firebase:protolite-well-known-types:18.0.0")
+    implementation ("org.jetbrains.kotlinx:kotlinx-collections-immutable-jvm:0.3.4")
     ksp("androidx.room:room-compiler:${rootProject.extra["room_version"]}")
 
-    implementation ("org.jetbrains.kotlinx:kotlinx-collections-immutable-jvm:0.3.4")
+
+    testImplementation("androidx.room:room-testing:2.6.1")
 
     debugImplementation("androidx.compose.ui:ui-test-manifest")
     debugImplementation("androidx.compose.ui:ui-tooling")
+}
+
+class RoomSchemaArgProvider(
+    @get:InputDirectory
+    @get:PathSensitive(PathSensitivity.RELATIVE)
+    val schemaDir: File
+) : CommandLineArgumentProvider {
+
+    override fun asArguments(): Iterable<String> {
+        // Note: If you're using KAPT and javac, change the line below to
+        // return listOf("-Aroom.schemaLocation=${schemaDir.path}").
+        return listOf("room.schemaLocation=${schemaDir.path}")
+    }
+}
+
+ksp {
+    arg(RoomSchemaArgProvider(File(projectDir, "schemas")))
 }

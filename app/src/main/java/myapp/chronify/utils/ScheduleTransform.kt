@@ -17,6 +17,7 @@ fun Schedule.toScheduleEntity(): ScheduleEntity = ScheduleEntity(
     beginDT = beginDT,
     endDT = endDT,
     interval = interval,
+    description = description,
     location = location,
 )
 
@@ -32,6 +33,7 @@ fun ScheduleEntity.toSchedule(): Schedule = Schedule(
     beginDT = beginDT,
     endDT = endDT,
     interval = interval,
+    description = description,
     location = location,
 )
 

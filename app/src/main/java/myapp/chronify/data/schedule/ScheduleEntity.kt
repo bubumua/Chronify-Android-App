@@ -16,5 +16,6 @@ data class ScheduleEntity(
     // for cyclical schedule
     val interval: Long? = null,
     // extra info
+    val description: String? = null,
     val location: String? = null,
 )

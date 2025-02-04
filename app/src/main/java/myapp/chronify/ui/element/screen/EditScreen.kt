@@ -292,6 +292,7 @@ fun ScheduleInputForm(
         // TODO: interval
 
         // description
+        Log.d("EditScreen", "initialValue: ${schedule.description}")
         OutlinedTextField(
             value = schedule.description ?: "",
             onValueChange = { onValueChange(schedule.copy(description = it)) },
@@ -306,6 +307,7 @@ fun ScheduleInputForm(
         )
 
         // TODO: location
+        Log.d("EditScreen", "initialValue: ${schedule.location}")
         OutlinedTextField(
             value = schedule.location ?: "",
             onValueChange = { onValueChange(schedule.copy(location = it)) },
@@ -319,15 +321,7 @@ fun ScheduleInputForm(
             singleLine = false
         )
 
-        // submit button
-        Button(
-            onClick = onSubmit,
-            enabled = canSubmit,
-            shape = MaterialTheme.shapes.small,
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text(stringResource(string.submit))
-        }
+
     }
 }
 
