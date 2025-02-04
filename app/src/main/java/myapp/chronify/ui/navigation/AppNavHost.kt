@@ -40,10 +40,10 @@ fun AppNavHost(
                 navigateToEdit = { navController.navigate("${EditScheduleScreenDestination.route}/$it") })
 
             // 拦截返回键事件
-            BackHandler {
-                // 退出应用程序
-                activity?.finish()
-            }
+            // BackHandler {
+            //     // 退出应用程序
+            //     activity?.finish()
+            // }
         }
         composable(route = HistoryScreenDestination.route) {
             HistoryScreen(

@@ -17,6 +17,8 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.material3.DropdownMenu
@@ -131,13 +133,13 @@ private fun CalendarHeader(
             IconButton(onClick = {
                 onMonthChange(currentYearMonth.minusMonths(1))
             }) {
-                Icon(Icons.Default.KeyboardArrowLeft, "Previous month")
+                Icon(Icons.AutoMirrored.Filled.KeyboardArrowLeft, "Previous month")
             }
 
             IconButton(onClick = {
                 onMonthChange(currentYearMonth.plusMonths(1))
             }) {
-                Icon(Icons.Default.KeyboardArrowRight, "Next month")
+                Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, "Next month")
             }
         }
     }

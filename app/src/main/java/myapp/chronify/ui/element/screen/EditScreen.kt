@@ -31,6 +31,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -213,8 +214,8 @@ fun ScheduleInputForm(
             )
         }
         // beginDT and endDT
-        var beginDTMillis by remember { mutableStateOf(System.currentTimeMillis()) }
-        var endDTMillis by remember { mutableStateOf(System.currentTimeMillis()) }
+        val beginDTMillis by remember { mutableLongStateOf(System.currentTimeMillis()) }
+        val endDTMillis by remember { mutableLongStateOf(System.currentTimeMillis()) }
         var showBeginDTPicker by remember { mutableStateOf(false) }
         var showEndDTPicker by remember { mutableStateOf(false) }
 
