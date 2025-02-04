@@ -120,6 +120,7 @@ private fun HistoryBody(
             onItemClick = { onListItemClick(it.id) },
             viewModel = viewModel,
             coroutineScope = coroutineScope,
+            ifRenderOutdated = false,
             modifier = Modifier.padding(horizontal = dimensionResource(R.dimen.padding_small)),
             contentPadding = contentPadding,
         )

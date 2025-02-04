@@ -102,6 +102,7 @@ fun AddScheduleBottomSheetContent(
                 onClick = {
                     coroutineScope.launch {
                         viewModel.saveScheduleEntity()
+                        viewModel.updateUiState(Schedule())
                     }
                     onDismissRequest()
                 },
@@ -120,7 +121,6 @@ fun AddScheduleBottomSheetContent(
                 schedule = schedule,
                 onValueChange = onValueChange,
                 modifier = Modifier.weight(1f),
-                initialTextString = ""
             )
             Spacer(modifier = Modifier.width(dimensionResource(dimen.padding_tiny)))
             Checkbox(
@@ -196,13 +196,13 @@ fun AddScheduleBottomSheetContent(
 
 @Composable
 private fun AutoFocusedOutlineTextField(
-    initialTextString: String = "",
-    onValueChange: (Schedule) -> Unit,
     schedule: Schedule,
+    onValueChange: (Schedule) -> Unit,
+    initialTextString: String = "",
     modifier: Modifier = Modifier
 ) {
     val focusRequester = remember { FocusRequester() }
-    val textFieldValueState = remember { mutableStateOf(TextFieldValue(initialTextString)) }
+    val textFieldValueState = remember { mutableStateOf(TextFieldValue(schedule.title)) }
 
     LaunchedEffect(Unit) {
         delay(300) // Optional delay to ensure the TextField is fully composed

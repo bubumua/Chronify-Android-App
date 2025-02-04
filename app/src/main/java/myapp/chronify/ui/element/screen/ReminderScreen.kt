@@ -117,7 +117,7 @@ fun ReminderScreen(
         drawerState = drawerState,
         drawerContent = {
             ModalDrawerSheet {
-                NavDrawerContent(ReminderScreenDestination.route,navController=navController)
+                NavDrawerContent(ReminderScreenDestination.route, navController = navController)
             }
         },
     ) {
@@ -136,7 +136,10 @@ fun ReminderScreen(
                                 }
                             }
                         }) {
-                            Icon(Icons.Default.Menu, contentDescription = stringResource(string.menu))
+                            Icon(
+                                Icons.Default.Menu,
+                                contentDescription = stringResource(string.menu)
+                            )
                         }
                     },
                     scrollBehavior = scrollBehavior
@@ -222,6 +225,7 @@ fun ScheduleList(
     viewModel: ScheduleListViewModel = viewModel(factory = AppViewModelProvider.Factory),
     coroutineScope: CoroutineScope = rememberCoroutineScope(),
     onItemClick: (ScheduleEntity) -> Unit = {},
+    ifRenderOutdated: Boolean = true,
     modifier: Modifier = Modifier,
     contentPadding: PaddingValues = PaddingValues(0.dp),
 ) {
@@ -250,6 +254,7 @@ fun ScheduleList(
                         )
                     }
                 },
+                ifRenderOutdated = ifRenderOutdated,
                 modifier = Modifier
                     .padding(dimensionResource(dimen.padding_tiny))
                     .clickable { onItemClick(item) }
@@ -265,6 +270,7 @@ private fun ScheduleItem(
     item: ScheduleEntity,
     onCheck: (ScheduleEntity) -> Unit = {},
     onDelete: (ScheduleEntity) -> Unit = {},
+    ifRenderOutdated: Boolean = true,
     modifier: Modifier = Modifier
 ) {
     val density = LocalDensity.current
@@ -320,7 +326,7 @@ private fun ScheduleItem(
                 Column {
                     Text(text = item.title, style = MaterialTheme.typography.titleLarge)
                     if (item.beginDT != null || item.endDT != null) {
-                        ScheduleDTText(item)
+                        ScheduleDTText(schedule = item, ifRenderOutdated = ifRenderOutdated)
                     }
                 }
                 Row(
@@ -401,6 +407,7 @@ private fun ScheduleItem(
 fun ScheduleDTText(
     schedule: Schedule,
     placeholderStr: String = "",
+    ifRenderOutdated: Boolean = true,
     modifier: Modifier = Modifier
 ) {
     val annotatedString = buildAnnotatedString {
@@ -408,7 +415,7 @@ fun ScheduleDTText(
             append(placeholderStr)
         } else {
             if (schedule.beginDT != null) {
-                if (schedule.beginDT <= System.currentTimeMillis()) {
+                if (schedule.beginDT < System.currentTimeMillis() && ifRenderOutdated) {
                     withStyle(style = SpanStyle(color = MaterialTheme.colorScheme.error)) {
                         append(schedule.beginDT.toFriendlyString())
                     }
@@ -435,9 +442,15 @@ fun ScheduleDTText(
 fun ScheduleDTText(
     schedule: ScheduleEntity,
     placeholderStr: String = "",
+    ifRenderOutdated: Boolean = true,
     modifier: Modifier = Modifier
 ) {
-    ScheduleDTText(schedule.toSchedule(), placeholderStr, modifier = modifier)
+    ScheduleDTText(
+        schedule = schedule.toSchedule(),
+        placeholderStr = placeholderStr,
+        ifRenderOutdated = ifRenderOutdated,
+        modifier = modifier
+    )
 }
 
 @Preview(showBackground = true)
