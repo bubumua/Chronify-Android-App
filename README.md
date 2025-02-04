@@ -44,4 +44,7 @@ The schedule data are stored in a Room database. Schedule items are represented 
 
 # References
 
+- [Android Basics with Compose](https://developer.android.com/courses/android-basics-compose/course)
 - [AnchoredDraggable Modifier](https://canopas.com/how-to-implement-swipe-to-action-using-anchoreddraggable-in-jetpack-compose-cccb22e44dff)
+- [ComposeMultiDatePicker](https://github.com/playmoweb/ComposeMultiDatePicker)
+- [ComposeDatePicker](https://github.com/vsnappy1/ComposeDatePicker)
