@@ -37,32 +37,32 @@ fun ScheduleAddScreen(
 ) {
     val coroutineScope = rememberCoroutineScope()
 
-    // Scaffold(
-    //     topBar = {
-    //         AppTopBar(
-    //             title = stringResource(string.add_schedule_title),
-    //             // canNavigateBack = canNavigateBack,
-    //             // onBackClick = onNavigateUp
-    //         )
-    //     }
-    // ) { innerPadding ->
-    //     EditScreenBody(
-    //         scheduleUiState = viewModel.scheduleUiState,
-    //         onUiStateChange = viewModel::updateUiState,
-    //         onSubmit = {
-    //             coroutineScope.launch {
-    //                 viewModel.saveScheduleEntity()
-    //                 navigateBack()
-    //             }
-    //         },
-    //         modifier = Modifier
-    //             .padding(
-    //                 start = innerPadding.calculateStartPadding(LocalLayoutDirection.current),
-    //                 end = innerPadding.calculateEndPadding(LocalLayoutDirection.current),
-    //                 top = innerPadding.calculateTopPadding()
-    //             )
-    //             .verticalScroll(rememberScrollState())
-    //             .fillMaxWidth()
-    //     )
-    // }
+    Scaffold(
+        topBar = {
+            AppTopBar(
+                title = stringResource(string.add_schedule_title),
+                // canNavigateBack = canNavigateBack,
+                // onBackClick = onNavigateUp
+            )
+        }
+    ) { innerPadding ->
+        EditScreenBody(
+            scheduleUiState = viewModel.scheduleUiState,
+            onUiStateChange = viewModel::updateUiState,
+            onSubmit = {
+                coroutineScope.launch {
+                    viewModel.saveScheduleEntity()
+                    navigateBack()
+                }
+            },
+            modifier = Modifier
+                .padding(
+                    start = innerPadding.calculateStartPadding(LocalLayoutDirection.current),
+                    end = innerPadding.calculateEndPadding(LocalLayoutDirection.current),
+                    top = innerPadding.calculateTopPadding()
+                )
+                .verticalScroll(rememberScrollState())
+                .fillMaxWidth()
+        )
+    }
 }
