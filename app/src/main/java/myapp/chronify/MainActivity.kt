@@ -48,11 +48,14 @@ class MainActivity : ComponentActivity() {
                             currentRoute = currentRoute,
                             onNavigateToRoute = { route ->
                                 navController.navigate(route) {
+                                    // Pop up to the start destination of the graph to avoid building up repeat destinations on the back stack as users select items
                                     // 避免创建重复的后退栈
                                     popUpTo(navController.graph.findStartDestination().id) {
                                         saveState = true
                                     }
+                                    // Avoid multiple copies of the same destination when reselecting the same item
                                     launchSingleTop = true
+                                    // Restore state when reselecting a previously selected item
                                     restoreState = true
                                 }
                             })

@@ -97,14 +97,12 @@ enum class ScheduleItemSwipeAnchorValue { Read, Resting, Delete }
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun JournalScreen(
-    navController: NavHostController,
     navigateToEdit: (Int) -> Unit = {},
     viewModel: ScheduleListViewModel = viewModel(factory = AppViewModelProvider.Factory),
     modifier: Modifier = Modifier,
 ) {
-    val remindUiState by viewModel.remindUiState.collectAsState()
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
-    val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
+    val remindUiState by viewModel.remindUiState.collectAsState()
     val sheetState = rememberModalBottomSheetState()
     var showBottomSheet by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
@@ -114,22 +112,6 @@ fun JournalScreen(
         topBar = {
             AppTopBar(
                 title = stringResource(string.app_name),
-                navigationIcon = {
-                    IconButton(onClick = {
-                        scope.launch {
-                            if (drawerState.isClosed) {
-                                drawerState.open()
-                            } else {
-                                drawerState.close()
-                            }
-                        }
-                    }) {
-                        Icon(
-                            Icons.Default.Menu,
-                            contentDescription = stringResource(string.menu)
-                        )
-                    }
-                },
                 scrollBehavior = scrollBehavior
             )
         },

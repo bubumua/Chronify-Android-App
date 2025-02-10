@@ -37,15 +37,8 @@ fun AppNavHost(
         composable(route = JournalScreenRoute.route) {
             // RemindScreen(navigateToAddScreen = { navController.navigate(AddScheduleScreenRoute.route) })
             JournalScreen(
-                navController = navController,
                 navigateToEdit = { navController.navigate("${EditScheduleScreenRoute.route}/$it") }
             )
-
-            // 拦截返回键事件
-            // BackHandler {
-            //     // 退出应用程序
-            //     activity?.finish()
-            // }
         }
         composable(route = HistoryScreenRoute.route) {
             HistoryScreen(
