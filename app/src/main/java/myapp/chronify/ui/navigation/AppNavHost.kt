@@ -1,7 +1,6 @@
 package myapp.chronify.ui.navigation
 
 import android.app.Activity
-import androidx.activity.compose.BackHandler
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -11,14 +10,16 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import myapp.chronify.ui.element.screen.ScheduleAddScreen
-import myapp.chronify.ui.element.screen.AddScheduleScreenDestination
 import myapp.chronify.ui.element.screen.EditScheduleScreen
-import myapp.chronify.ui.element.screen.EditScheduleScreenDestination
+import myapp.chronify.ui.element.screen.EditScheduleScreenRoute
 import myapp.chronify.ui.element.screen.HistoryScreen
-import myapp.chronify.ui.element.screen.HistoryScreenDestination
-import myapp.chronify.ui.element.screen.ReminderScreen
-import myapp.chronify.ui.element.screen.ReminderScreenDestination
+import myapp.chronify.ui.element.screen.HistoryScreenRoute
+import myapp.chronify.ui.element.screen.JournalScreen
+import myapp.chronify.ui.element.screen.JournalScreenRoute
+import myapp.chronify.ui.element.screen.SettingsScreen
+import myapp.chronify.ui.element.screen.SettingsScreenRoute
+import myapp.chronify.ui.element.screen.StatisticsScreen
+import myapp.chronify.ui.element.screen.StatisticsScreenRoute
 
 @Composable
 fun AppNavHost(
@@ -30,14 +31,15 @@ fun AppNavHost(
 
     NavHost(
         navController = navController,
-        startDestination = ReminderScreenDestination.route,
+        startDestination = JournalScreenRoute.route,
         modifier = modifier
     ) {
-        composable(route = ReminderScreenDestination.route) {
-            // RemindScreen(navigateToAddScreen = { navController.navigate(AddScheduleScreenDestination.route) })
-            ReminderScreen(
+        composable(route = JournalScreenRoute.route) {
+            // RemindScreen(navigateToAddScreen = { navController.navigate(AddScheduleScreenRoute.route) })
+            JournalScreen(
                 navController = navController,
-                navigateToEdit = { navController.navigate("${EditScheduleScreenDestination.route}/$it") })
+                navigateToEdit = { navController.navigate("${EditScheduleScreenRoute.route}/$it") }
+            )
 
             // 拦截返回键事件
             // BackHandler {
@@ -45,25 +47,35 @@ fun AppNavHost(
             //     activity?.finish()
             // }
         }
-        composable(route = HistoryScreenDestination.route) {
+        composable(route = HistoryScreenRoute.route) {
             HistoryScreen(
                 navController = navController,
-                navigateToEdit = { navController.navigate("${EditScheduleScreenDestination.route}/$it") })
+                navigateToEdit = { navController.navigate("${EditScheduleScreenRoute.route}/$it") })
         }
-        // composable(route = AddScheduleScreenDestination.route) {
+
+        // composable(route = AddScheduleScreenRoute.route) {
         //     ScheduleAddScreen(
         //         navigateBack = { navController.popBackStack() },
         //         onNavigateUp = { navController.navigateUp() }
         //     )
         // }
+
         composable(
-            route = EditScheduleScreenDestination.routeWithArgs,
-            arguments = listOf(navArgument(EditScheduleScreenDestination.itemIdArg) {
+            route = EditScheduleScreenRoute.routeWithArgs,
+            arguments = listOf(navArgument(EditScheduleScreenRoute.itemIdArg) {
                 type =
                     NavType.IntType
             })
         ) {
             EditScheduleScreen(navigateBack = { navController.navigateUp() })
+        }
+
+        composable(route = StatisticsScreenRoute.route) {
+            StatisticsScreen()
+        }
+
+        composable(route = SettingsScreenRoute.route) {
+            SettingsScreen()
         }
     }
 }

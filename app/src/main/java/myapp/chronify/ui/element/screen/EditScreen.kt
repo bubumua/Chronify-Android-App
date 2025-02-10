@@ -18,7 +18,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Done
-import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -46,7 +45,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.viewmodel.compose.viewModel
 import kotlinx.coroutines.launch
-import myapp.chronify.ui.navigation.NavigationDestination
+import myapp.chronify.ui.navigation.NavigationRoute
 import myapp.chronify.R.string
 import myapp.chronify.R.dimen
 import myapp.chronify.datamodel.Schedule
@@ -60,8 +59,7 @@ import myapp.chronify.ui.viewmodel.AppViewModelProvider
 import myapp.chronify.ui.viewmodel.ScheduleEditViewModel
 import myapp.chronify.utils.MyDateTimeFormatter.toFriendlyString
 
-object EditScheduleScreenDestination : NavigationDestination {
-    override val titleRes = string.edit_title
+object EditScheduleScreenRoute : NavigationRoute {
     override val route = "edit"
     const val itemIdArg = "itemId"
     val routeWithArgs = "$route/{$itemIdArg}"

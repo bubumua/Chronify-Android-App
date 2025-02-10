@@ -20,8 +20,14 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
+import androidx.navigation.NavGraph.Companion.findStartDestination
+import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.navigation.compose.rememberNavController
+import myapp.chronify.ui.element.AppBottomBar
 import myapp.chronify.ui.navigation.AppNavHost
 import myapp.chronify.ui.theme.bluesimple.BlueSimpleTheme
 
@@ -32,13 +38,37 @@ class MainActivity : ComponentActivity() {
         setContent {
             // TODO: DataStore
             BlueSimpleTheme {
-                // 使用Surface避免导航时的屏幕闪烁
-                Surface(
-                    modifier = Modifier.fillMaxSize(),
-                ) {
-                    AppNavHost()
+                val navController = rememberNavController()
+                val currentRoute =
+                    navController.currentBackStackEntryAsState().value?.destination?.route
+
+                Scaffold(
+                    bottomBar = {
+                        AppBottomBar(
+                            currentRoute = currentRoute,
+                            onNavigateToRoute = { route ->
+                                navController.navigate(route) {
+                                    // 避免创建重复的后退栈
+                                    popUpTo(navController.graph.findStartDestination().id) {
+                                        saveState = true
+                                    }
+                                    launchSingleTop = true
+                                    restoreState = true
+                                }
+                            })
+                    },
+                ) { innerPadding ->
+                    // 使用Surface避免导航时的屏幕闪烁
+                    Surface(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(innerPadding),
+                    ) {
+                        AppNavHost(navController = navController)
+                    }
                 }
             }
         }
     }
 }
+

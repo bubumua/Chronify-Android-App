@@ -20,6 +20,7 @@
     <string name="add_button">Add a Schedule</string>
     <!--  navigation drawer  -->
     <string name="todo_list">Todos</string>
+    <string name="journal">Journal</string>
     <string name="todo_reminder">Reminder</string>
     <string name="todo_history">History</string>
     <string name="statistics">Statistics</string>

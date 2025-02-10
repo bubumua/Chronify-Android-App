@@ -84,7 +84,6 @@ dependencies {
     implementation ("org.jetbrains.kotlinx:kotlinx-collections-immutable-jvm:0.3.4")
     ksp("androidx.room:room-compiler:${rootProject.extra["room_version"]}")
 
-
     testImplementation("androidx.room:room-testing:2.6.1")
 
     debugImplementation("androidx.compose.ui:ui-test-manifest")

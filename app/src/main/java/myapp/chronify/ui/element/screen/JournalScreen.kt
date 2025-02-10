@@ -39,8 +39,6 @@ import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalDrawerSheet
-import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
@@ -82,8 +80,7 @@ import myapp.chronify.datamodel.ScheduleType
 import myapp.chronify.datamodel.getLocalizedName
 import myapp.chronify.ui.element.AddScheduleBottomSheet
 import myapp.chronify.ui.element.AppTopBar
-import myapp.chronify.ui.element.NavDrawerContent
-import myapp.chronify.ui.navigation.NavigationDestination
+import myapp.chronify.ui.navigation.NavigationRoute
 import myapp.chronify.ui.theme.BusScheduleTheme
 import myapp.chronify.ui.viewmodel.AppViewModelProvider
 import myapp.chronify.ui.viewmodel.ScheduleListViewModel
@@ -91,16 +88,15 @@ import myapp.chronify.utils.MyDateTimeFormatter.toFriendlyString
 import kotlin.math.roundToInt
 import myapp.chronify.utils.toSchedule
 
-object ReminderScreenDestination : NavigationDestination {
-    override val route = "mark"
-    override val titleRes = string.app_name
+object JournalScreenRoute : NavigationRoute {
+    override val route = "journal"
 }
 
 enum class ScheduleItemSwipeAnchorValue { Read, Resting, Delete }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ReminderScreen(
+fun JournalScreen(
     navController: NavHostController,
     navigateToEdit: (Int) -> Unit = {},
     viewModel: ScheduleListViewModel = viewModel(factory = AppViewModelProvider.Factory),
@@ -113,81 +109,69 @@ fun ReminderScreen(
     var showBottomSheet by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
 
-    ModalNavigationDrawer(
-        drawerState = drawerState,
-        drawerContent = {
-            ModalDrawerSheet {
-                NavDrawerContent(
-                    ReminderScreenDestination.route,
-                    navController = navController,
-                    drawerState = drawerState
-                )
-            }
-        },
-    ) {
-        Scaffold(
-            modifier = modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
-            topBar = {
-                AppTopBar(
-                    title = stringResource(string.app_name),
-                    navigationIcon = {
-                        IconButton(onClick = {
-                            scope.launch {
-                                if (drawerState.isClosed) {
-                                    drawerState.open()
-                                } else {
-                                    drawerState.close()
-                                }
+    Scaffold(
+        modifier = modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
+        topBar = {
+            AppTopBar(
+                title = stringResource(string.app_name),
+                navigationIcon = {
+                    IconButton(onClick = {
+                        scope.launch {
+                            if (drawerState.isClosed) {
+                                drawerState.open()
+                            } else {
+                                drawerState.close()
                             }
-                        }) {
-                            Icon(
-                                Icons.Default.Menu,
-                                contentDescription = stringResource(string.menu)
-                            )
                         }
-                    },
-                    scrollBehavior = scrollBehavior
-                )
-            },
-            floatingActionButton = {
-                FloatingActionButton(
-                    // onClick = navigateToAddScreen,
-                    onClick = { showBottomSheet = true },
-                    modifier = Modifier.padding(dimensionResource(dimen.padding_large))
-                ) {
-                    Icon(
-                        imageVector = Icons.Filled.Add,
-                        contentDescription = stringResource(string.add_button)
-                    )
-                }
-            }
-        ) { innerPadding ->
-            ReminderBody(
-                scheduleList = remindUiState.scheduleList,
-                onListItemClick = navigateToEdit,
-                coroutineScope = scope,
-                modifier = modifier.fillMaxSize(),
-                contentPadding = innerPadding
+                    }) {
+                        Icon(
+                            Icons.Default.Menu,
+                            contentDescription = stringResource(string.menu)
+                        )
+                    }
+                },
+                scrollBehavior = scrollBehavior
             )
-            // Bottom sheet
-            if (showBottomSheet) {
-                AddScheduleBottomSheet(
-                    sheetState = sheetState,
-                    onDismissRequest = {
-                        scope.launch { sheetState.hide() }.invokeOnCompletion {
-                            if (!sheetState.isVisible) {
-                                showBottomSheet = false
-                            }
-                        }
-                    },
+        },
+        floatingActionButton = {
+            FloatingActionButton(
+                // onClick = navigateToAddScreen,
+                onClick = { showBottomSheet = true },
+                modifier = Modifier.padding(dimensionResource(dimen.padding_large))
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.Add,
+                    contentDescription = stringResource(string.add_button)
                 )
             }
         }
+    ) { innerPadding ->
+        JournalBody(
+            scheduleList = remindUiState.scheduleList,
+            onListItemClick = navigateToEdit,
+            coroutineScope = scope,
+            modifier = modifier.fillMaxSize(),
+            contentPadding = innerPadding
+        )
+        // Bottom sheet
+        if (showBottomSheet) {
+            AddScheduleBottomSheet(
+                sheetState = sheetState,
+                onDismissRequest = {
+                    scope.launch { sheetState.hide() }.invokeOnCompletion {
+                        if (!sheetState.isVisible) {
+                            showBottomSheet = false
+                        }
+                    }
+                },
+            )
+        }
     }
+
 }
 
 @Composable
-private fun ReminderBody(
+private fun JournalBody(
     scheduleList: List<ScheduleEntity> = emptyList(),
     onListItemClick: (Int) -> Unit = {},
     viewModel: ScheduleListViewModel = viewModel(factory = AppViewModelProvider.Factory),
@@ -461,7 +445,7 @@ fun ScheduleDTText(
 @Composable
 fun RemindBodyPreview() {
     BusScheduleTheme {
-        ReminderBody(
+        JournalBody(
             listOf(
                 ScheduleEntity(1, "Drink", ScheduleType.DEFAULT.name, false),
                 ScheduleEntity(2, "Eat", ScheduleType.DEFAULT.name, false),

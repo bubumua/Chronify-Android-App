@@ -17,13 +17,12 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import kotlinx.coroutines.launch
 import myapp.chronify.R.string
 import myapp.chronify.ui.element.AppTopBar
-import myapp.chronify.ui.navigation.NavigationDestination
+import myapp.chronify.ui.navigation.NavigationRoute
 import myapp.chronify.ui.viewmodel.ScheduleAddViewModel
 import myapp.chronify.ui.viewmodel.AppViewModelProvider
 
-object AddScheduleScreenDestination : NavigationDestination {
+object AddScheduleScreenRoute : NavigationRoute {
     override val route = "add"
-    override val titleRes = string.add_schedule_title
 }
 
 @OptIn(ExperimentalMaterial3Api::class)

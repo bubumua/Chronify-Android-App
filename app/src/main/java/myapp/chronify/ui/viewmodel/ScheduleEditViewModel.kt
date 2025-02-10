@@ -8,7 +8,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import myapp.chronify.data.schedule.ScheduleRepository
 import myapp.chronify.datamodel.Schedule
-import myapp.chronify.ui.element.screen.EditScheduleScreenDestination
+import myapp.chronify.ui.element.screen.EditScheduleScreenRoute
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -26,7 +26,7 @@ class ScheduleEditViewModel(
 ) : ViewModel() {
 
     private val scheduleId: Int =
-        checkNotNull(savedStateHandle[EditScheduleScreenDestination.itemIdArg])
+        checkNotNull(savedStateHandle[EditScheduleScreenRoute.itemIdArg])
 
     /**
      * Holds current edit schedule ui state

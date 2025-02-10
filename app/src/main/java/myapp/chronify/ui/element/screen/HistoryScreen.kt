@@ -15,7 +15,6 @@ import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberDrawerState
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -35,13 +34,12 @@ import myapp.chronify.R.string
 import myapp.chronify.data.schedule.ScheduleEntity
 import myapp.chronify.ui.element.AppTopBar
 import myapp.chronify.ui.element.NavDrawerContent
-import myapp.chronify.ui.navigation.NavigationDestination
+import myapp.chronify.ui.navigation.NavigationRoute
 import myapp.chronify.ui.viewmodel.AppViewModelProvider
 import myapp.chronify.ui.viewmodel.ScheduleListViewModel
 
-object HistoryScreenDestination : NavigationDestination {
+object HistoryScreenRoute : NavigationRoute {
     override val route = "history"
-    override val titleRes = string.todo_history
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -62,7 +60,7 @@ fun HistoryScreen(
         drawerContent = {
             ModalDrawerSheet {
                 NavDrawerContent(
-                    HistoryScreenDestination.route,
+                    HistoryScreenRoute.route,
                     navController = navController,
                     drawerState = drawerState
                 )

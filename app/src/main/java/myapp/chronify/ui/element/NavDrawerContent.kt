@@ -16,10 +16,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import kotlinx.coroutines.launch
-import myapp.chronify.R.dimen
 import myapp.chronify.R.string
-import myapp.chronify.ui.element.screen.HistoryScreenDestination
-import myapp.chronify.ui.element.screen.ReminderScreenDestination
+import myapp.chronify.ui.element.screen.HistoryScreenRoute
+import myapp.chronify.ui.element.screen.JournalScreenRoute
 
 @Composable
 fun NavDrawerContent(
@@ -49,13 +48,13 @@ fun NavDrawerContent(
         )
         // reminder
         NavigationDrawerItem(label = { Text(stringResource(string.todo_reminder)) },
-            selected = currentRoute == ReminderScreenDestination.route,
+            selected = currentRoute == JournalScreenRoute.route,
             onClick = {
                 coroutineScope.launch {
                     drawerState.close()
                 }
-                if (currentRoute != ReminderScreenDestination.route)
-                    navController.navigate(ReminderScreenDestination.route) {
+                if (currentRoute != JournalScreenRoute.route)
+                    navController.navigate(JournalScreenRoute.route) {
                         // 清除导航历史记录
                         //     popUpTo(navController.graph.startDestinationId) {
                         //         inclusive = true
@@ -65,13 +64,13 @@ fun NavDrawerContent(
             })
         // history
         NavigationDrawerItem(label = { Text(stringResource(string.todo_history)) },
-            selected = currentRoute == HistoryScreenDestination.route,
+            selected = currentRoute == HistoryScreenRoute.route,
             onClick = {
                 coroutineScope.launch {
                     drawerState.close()
                 }
-                if (currentRoute != HistoryScreenDestination.route)
-                    navController.navigate(HistoryScreenDestination.route)
+                if (currentRoute != HistoryScreenRoute.route)
+                    navController.navigate(HistoryScreenRoute.route)
             })
 
         HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))

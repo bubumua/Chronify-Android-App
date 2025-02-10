@@ -16,17 +16,21 @@
 
 package myapp.chronify.ui.navigation
 
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.outlined.Settings
+import androidx.compose.ui.graphics.vector.ImageVector
+import myapp.chronify.R.drawable
+import myapp.chronify.R.string
+
 /**
  * Interface to describe the navigation destinations for the app
  */
-interface NavigationDestination {
+interface NavigationRoute {
     /**
      * Unique name to define the path for a composable
      */
     val route: String
-
-    /**
-     * String resource id to that contains title to be displayed for the screen.
-     */
-    val titleRes: Int
 }
+
+
