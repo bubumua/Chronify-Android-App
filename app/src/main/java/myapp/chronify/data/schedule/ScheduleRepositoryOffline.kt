@@ -4,6 +4,18 @@ import kotlinx.coroutines.flow.Flow
 
 class ScheduleRepositoryOffline(private val scheduleDao: ScheduleDao) : ScheduleRepository {
 
+    override suspend fun insert(schedule: ScheduleEntity) {
+        scheduleDao.insert(schedule)
+    }
+
+    override suspend fun update(schedule: ScheduleEntity) {
+        scheduleDao.update(schedule)
+    }
+
+    override suspend fun delete(schedule: ScheduleEntity) {
+        scheduleDao.delete(schedule)
+    }
+
     override fun getScheduleStreamById(id: Int): Flow<ScheduleEntity?> =
         scheduleDao.getScheduleById(id)
 
@@ -16,15 +28,10 @@ class ScheduleRepositoryOffline(private val scheduleDao: ScheduleDao) : Schedule
     override fun getFinishedSchedulesStream(): Flow<List<ScheduleEntity>> =
         scheduleDao.getFinishedSchedules()
 
-    override suspend fun insert(schedule: ScheduleEntity) {
-        scheduleDao.insert(schedule)
-    }
+    // override suspend fun getScheduleDateRange(): Pair<Long, Long>? =
+    //     scheduleDao.getScheduleDateRange()
 
-    override suspend fun update(schedule: ScheduleEntity) {
-        scheduleDao.update(schedule)
-    }
+    override fun getFinishedSchedulesInRange(from: Long, to: Long): Flow<List<ScheduleEntity>> =
+        scheduleDao.getFinishedSchedulesInRange(from, to)
 
-    override suspend fun delete(schedule: ScheduleEntity) {
-        scheduleDao.delete(schedule)
-    }
 }

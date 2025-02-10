@@ -1,5 +1,19 @@
 # Chronify
 
+todo
+
+- [ ] DTText文本样式优化
+- [ ] 将侧拉导航改为底部导航
+- [ ] 统计
+    - [ ] 日历统计：事件在可滚动的日历上显现
+      - 暂时构想：仿GitHub提交活跃记录，在日历上以颜色浓度表示当日事件的数量，点击日期后显示事件列表。有筛选功能，可根据title筛选事件。
+    - [ ] 图表统计
+- [ ] 设置
+    - [ ] 导出记录数据为csv或其他格式文件
+    - [ ] 设置用户偏好选项
+    - [ ] 自定义快捷添加事件
+- [ ] 优化日期选择，添加initial参数。若不为null，默认选中已有日期（该功能优先级不高）
+
 ## Introduction
 
 This is a simple schedule Android App that allows you to add, delete, and view your task/reminder/todo/check. The APP is written in Kotlin with Jetpack Compose UI and uses the Room database to store data.
@@ -48,3 +62,5 @@ The schedule data are stored in a Room database. Schedule items are represented 
 - [AnchoredDraggable Modifier](https://canopas.com/how-to-implement-swipe-to-action-using-anchoreddraggable-in-jetpack-compose-cccb22e44dff)
 - [ComposeMultiDatePicker](https://github.com/playmoweb/ComposeMultiDatePicker)
 - [ComposeDatePicker](https://github.com/vsnappy1/ComposeDatePicker)
+- [【自荐+送码】个人新作品：Aphrodite——性生活日历](https://meta.appinn.net/t/topic/26613)
+- [少数派](https://sspai.com/post/70238)

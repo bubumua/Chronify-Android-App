@@ -34,6 +34,9 @@ object AppViewModelProvider {
                 DataContainerApplication().container.scheduleRepositoryOffline
             )
         }
+        initializer {
+            ScheduleCalendarViewModel(DataContainerApplication().container.scheduleRepositoryOffline)
+        }
     }
 }
 

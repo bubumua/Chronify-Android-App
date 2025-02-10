@@ -430,7 +430,7 @@ fun ScheduleDTText(
                 append("?")
             }
             if (schedule.endDT != null && schedule.endDT != schedule.beginDT) {
-                append(" - ")
+                append(" >>> ")
                 append(schedule.endDT.toFriendlyString())
             }
         }
