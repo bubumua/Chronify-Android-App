@@ -4,7 +4,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import myapp.chronify.data.schedule.ScheduleEntity
 import myapp.chronify.data.schedule.ScheduleRepository
@@ -13,8 +12,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 
 data class ScheduleListUiState(val scheduleList: List<ScheduleEntity> = listOf())
-
-data class HistoryUiState(val scheduleList: List<ScheduleEntity> = listOf())
 
 // 添加一个枚举类表示筛选状态
 enum class ScheduleFilter {
@@ -31,7 +28,9 @@ class ScheduleListViewModel(val scheduleRepository: ScheduleRepository) : ViewMo
     private val _currentFilter = MutableStateFlow(ScheduleFilter.UNFINISHED)
     val currentFilter = _currentFilter.asStateFlow()
 
-    // 修改 scheduleListUiState 的实现
+    /**
+     * Holds marker screen ui state. The list of schedules are retrieved from [ScheduleRepository] and mapped to [ScheduleListUiState]
+     */
     val journalUiState: StateFlow<ScheduleListUiState> =
         combine(
             scheduleRepository.getUnfinishedSchedulesStream(),
@@ -57,23 +56,6 @@ class ScheduleListViewModel(val scheduleRepository: ScheduleRepository) : ViewMo
     fun updateFilter(filter: ScheduleFilter) {
         _currentFilter.value = filter
     }
-
-    /**
-     * Holds mark screen ui state. The list of schedules are retrieved from [ScheduleRepository] and mapped to [ScheduleListUiState]
-     */
-    val scheduleListUiState: StateFlow<ScheduleListUiState> =
-        scheduleRepository.getUnfinishedSchedulesStream().map { ScheduleListUiState(it) }.stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
-            initialValue = ScheduleListUiState()
-        )
-
-    val historyUiState: StateFlow<HistoryUiState> =
-        scheduleRepository.getFinishedSchedulesStream().map { HistoryUiState(it) }.stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(myapp.chronify.ui.viewmodel.TIMEOUT_MILLIS),
-            initialValue = HistoryUiState()
-        )
 
     suspend fun deleteSchedule(schedule: ScheduleEntity) {
         scheduleRepository.delete(schedule)
