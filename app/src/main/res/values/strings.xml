@@ -20,12 +20,16 @@
     <string name="add_button">Add a Schedule</string>
     <!--  navigation drawer  -->
     <string name="todo_list">Todos</string>
-    <string name="journal">Journal</string>
     <string name="todo_reminder">Reminder</string>
     <string name="todo_history">History</string>
     <string name="statistics">Statistics</string>
     <string name="setting">Setting</string>
     <string name="menu">Menu</string>
+    <!-- journal screen -->
+    <string name="journal">Journal</string>
+    <string name="unfinished">Unfinished</string>
+    <string name="finished">Finished</string>
+    <string name="all">All</string>
 
     <!--  add screen  -->
     <string name="add_schedule_title">Add Schedule</string>

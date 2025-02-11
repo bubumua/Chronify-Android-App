@@ -33,16 +33,17 @@ import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
-import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SegmentedButton
+import androidx.compose.material3.SegmentedButtonDefaults
+import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.material3.rememberDrawerState
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -67,7 +68,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavHostController
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
@@ -83,6 +83,7 @@ import myapp.chronify.ui.element.AppTopBar
 import myapp.chronify.ui.navigation.NavigationRoute
 import myapp.chronify.ui.theme.BusScheduleTheme
 import myapp.chronify.ui.viewmodel.AppViewModelProvider
+import myapp.chronify.ui.viewmodel.ScheduleFilter
 import myapp.chronify.ui.viewmodel.ScheduleListViewModel
 import myapp.chronify.utils.MyDateTimeFormatter.toFriendlyString
 import kotlin.math.roundToInt
@@ -102,7 +103,7 @@ fun JournalScreen(
     modifier: Modifier = Modifier,
 ) {
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
-    val remindUiState by viewModel.remindUiState.collectAsState()
+    val journalUiState by viewModel.journalUiState.collectAsState()
     val sheetState = rememberModalBottomSheetState()
     var showBottomSheet by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
@@ -129,7 +130,7 @@ fun JournalScreen(
         }
     ) { innerPadding ->
         JournalBody(
-            scheduleList = remindUiState.scheduleList,
+            scheduleList = journalUiState.scheduleList,
             onListItemClick = navigateToEdit,
             coroutineScope = scope,
             modifier = modifier.fillMaxSize(),
@@ -164,9 +165,23 @@ private fun JournalBody(
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = modifier,
+        modifier = modifier.padding(
+            top = contentPadding.calculateTopPadding(),
+            bottom = contentPadding.calculateBottomPadding()
+        ),
     ) {
         // TODO: a visualization schedule
+
+
+        val currentFilter by viewModel.currentFilter.collectAsState()
+
+        ScheduleListFilter(
+            currentFilter = currentFilter,
+            onFilterChanged = { viewModel.updateFilter(it) },
+            modifier = Modifier
+                // .fillMaxWidth()
+                // .padding(horizontal = dimensionResource(dimen.padding_small))
+        )
 
         if (scheduleList.isEmpty()) {
             Text(
@@ -181,12 +196,44 @@ private fun JournalBody(
                 onItemClick = { onListItemClick(it.id) },
                 viewModel = viewModel,
                 coroutineScope = coroutineScope,
-                modifier = Modifier.padding(horizontal = dimensionResource(dimen.padding_small)),
-                contentPadding = contentPadding,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = dimensionResource(dimen.padding_small)),
+                // contentPadding = contentPadding,
             )
         }
     }
 
+}
+
+@Composable
+fun ScheduleListFilter(
+    currentFilter: ScheduleFilter,
+    onFilterChanged: (ScheduleFilter) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    SingleChoiceSegmentedButtonRow(
+        modifier = modifier
+    ) {
+        ScheduleFilter.entries.forEachIndexed { index, filter ->
+            SegmentedButton(
+                selected = currentFilter == filter,
+                onClick = { onFilterChanged(filter) },
+                shape = SegmentedButtonDefaults.itemShape(
+                    index = index,
+                    count = ScheduleFilter.entries.size
+                ),
+            ) {
+                Text(
+                    text = when (filter) {
+                        ScheduleFilter.UNFINISHED -> stringResource(string.unfinished)
+                        ScheduleFilter.FINISHED -> stringResource(string.finished)
+                        ScheduleFilter.ALL -> stringResource(string.all)
+                    }
+                )
+            }
+        }
+    }
 }
 
 @Composable
@@ -208,14 +255,12 @@ fun ScheduleList(
             ScheduleItem(
                 item = item,
                 onDelete = {
-                    // Log.d("ScheduleList", "Delete item: ${item.title}")
                     coroutineScope.launch {
                         viewModel.deleteSchedule(item)
                     }
                 },
                 onCheck = {
-                    // Log.d("ScheduleList", "Check item: ${item.title}")
-                    coroutineScope.launch {
+                   coroutineScope.launch {
                         viewModel.updateSchedule(
                             it.copy(
                                 isFinished = !it.isFinished,

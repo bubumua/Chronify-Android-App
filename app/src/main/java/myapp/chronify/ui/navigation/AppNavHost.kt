@@ -12,8 +12,6 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import myapp.chronify.ui.element.screen.EditScheduleScreen
 import myapp.chronify.ui.element.screen.EditScheduleScreenRoute
-import myapp.chronify.ui.element.screen.HistoryScreen
-import myapp.chronify.ui.element.screen.HistoryScreenRoute
 import myapp.chronify.ui.element.screen.JournalScreen
 import myapp.chronify.ui.element.screen.JournalScreenRoute
 import myapp.chronify.ui.element.screen.SettingsScreen
@@ -40,18 +38,7 @@ fun AppNavHost(
                 navigateToEdit = { navController.navigate("${EditScheduleScreenRoute.route}/$it") }
             )
         }
-        composable(route = HistoryScreenRoute.route) {
-            HistoryScreen(
-                navController = navController,
-                navigateToEdit = { navController.navigate("${EditScheduleScreenRoute.route}/$it") })
-        }
 
-        // composable(route = AddScheduleScreenRoute.route) {
-        //     ScheduleAddScreen(
-        //         navigateBack = { navController.popBackStack() },
-        //         onNavigateUp = { navController.navigateUp() }
-        //     )
-        // }
 
         composable(
             route = EditScheduleScreenRoute.routeWithArgs,
