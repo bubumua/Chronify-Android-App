@@ -24,17 +24,31 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
+import myapp.chronify.data.PreferencesKey
 import myapp.chronify.ui.element.AppBottomBar
 import myapp.chronify.ui.navigation.AppNavHost
 import myapp.chronify.ui.theme.bluesimple.BlueSimpleTheme
 
 class MainActivity : ComponentActivity() {
+    private val preferencesRepository by lazy {
+        (application as DataContainerApplication).preferencesRepository
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         // enableEdgeToEdge()
         super.onCreate(savedInstanceState)
+
+        // 可以在这里处理首次安装的初始化逻辑
+        // lifecycleScope.launch {
+        //     handleFirstLaunch()
+        // }
+
         setContent {
             // TODO: DataStore
             BlueSimpleTheme {
@@ -73,5 +87,20 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
+
+    // private suspend fun handleFirstLaunch() {
+    //     val isFirstLaunch = preferencesRepository.getPreference(
+    //         PreferencesKey.AppSettings.IsFirstLaunch
+    //     ).first()
+    //
+    //     if (isFirstLaunch) {
+    //         // 首次启动的特殊初始化
+    //         preferencesRepository.updatePreference(
+    //             PreferencesKey.AppSettings.IsFirstLaunch,
+    //             false
+    //         )
+    //         // 可以在这里执行其他首次启动的初始化操作
+    //     }
+    // }
 }
 

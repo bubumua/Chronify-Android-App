@@ -81,6 +81,7 @@ dependencies {
     implementation("androidx.room:room-ktx:${rootProject.extra["room_version"]}")
     implementation("androidx.room:room-runtime:${rootProject.extra["room_version"]}")
     implementation("com.google.firebase:protolite-well-known-types:18.0.0")
+    implementation("androidx.datastore:datastore-preferences:1.0.0")
     implementation ("org.jetbrains.kotlinx:kotlinx-collections-immutable-jvm:0.3.4")
     ksp("androidx.room:room-compiler:${rootProject.extra["room_version"]}")
 

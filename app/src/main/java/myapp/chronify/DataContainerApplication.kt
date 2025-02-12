@@ -16,8 +16,13 @@
 package myapp.chronify
 
 import android.app.Application
+import android.util.Log
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import myapp.chronify.data.AppDataContainer
 import myapp.chronify.data.AppDatabase
+import myapp.chronify.data.PreferencesRepository
 
 class DataContainerApplication: Application() {
     /**
@@ -27,8 +32,18 @@ class DataContainerApplication: Application() {
 
     val database: AppDatabase by lazy { AppDatabase.getDatabase(this) }
 
+    lateinit var preferencesRepository: PreferencesRepository
+        private set
+
     override fun onCreate() {
         super.onCreate()
         container = AppDataContainer(this)
+        preferencesRepository = PreferencesRepository(this)
+
+        // 在应用启动时初始化偏好设置
+        // CoroutineScope(Dispatchers.IO).launch {
+        //     Log.d("DataContainerApplication", "Initializing preferences")
+        //     preferencesRepository.initializePreferences()
+        // }
     }
 }
