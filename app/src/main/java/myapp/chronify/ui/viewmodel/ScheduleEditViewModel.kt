@@ -12,6 +12,7 @@ import myapp.chronify.ui.element.screen.EditScheduleScreenRoute
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import myapp.chronify.data.PreferencesRepository
 import myapp.chronify.datamodel.ScheduleUiState
 import myapp.chronify.utils.toScheduleEntity
 import myapp.chronify.utils.toScheduleUiState
@@ -23,6 +24,7 @@ import myapp.chronify.utils.toScheduleUiState
 class ScheduleEditViewModel(
     savedStateHandle: SavedStateHandle,
     private val scheduleRepository: ScheduleRepository,
+    private val preferencesRepository: PreferencesRepository
 ) : ViewModel() {
 
     private val scheduleId: Int =

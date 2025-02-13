@@ -8,6 +8,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import myapp.chronify.data.PreferencesKey
 import myapp.chronify.data.PreferencesRepository
+import myapp.chronify.data.schedule.ScheduleRepository
 
 class SettingsUiState(
     val settings: Map<PreferencesKey<*>, Any> = emptyMap(),
@@ -15,6 +16,7 @@ class SettingsUiState(
 )
 
 class SettingsViewModel(
+    private val scheduleRepository: ScheduleRepository,
     private val preferencesRepository: PreferencesRepository
 ) : ViewModel() {
 

@@ -23,22 +23,38 @@ fun CreationExtras.DataContainerApplication(): DataContainerApplication =
 object AppViewModelProvider {
     val Factory: ViewModelProvider.Factory = viewModelFactory {
         initializer {
-            ScheduleListViewModel(DataContainerApplication().container.scheduleRepositoryOffline)
+            ScheduleListViewModel(
+                DataContainerApplication().container.scheduleRepositoryOffline,
+                DataContainerApplication().preferencesRepository
+            )
         }
         initializer {
-            ScheduleAddViewModel(DataContainerApplication().container.scheduleRepositoryOffline)
+            ScheduleAddViewModel(
+                DataContainerApplication().container.scheduleRepositoryOffline,
+                DataContainerApplication().preferencesRepository
+            )
         }
         initializer {
             ScheduleEditViewModel(
                 this.createSavedStateHandle(),
-                DataContainerApplication().container.scheduleRepositoryOffline
+                DataContainerApplication().container.scheduleRepositoryOffline,
+                DataContainerApplication().preferencesRepository
             )
         }
         initializer {
             ScheduleCalendarViewModel(DataContainerApplication().container.scheduleRepositoryOffline)
         }
         initializer {
-            SettingsViewModel(DataContainerApplication().preferencesRepository)
+            StatisticsViewModel(
+                DataContainerApplication().container.scheduleRepositoryOffline,
+                DataContainerApplication().preferencesRepository
+            )
+        }
+        initializer {
+            SettingsViewModel(
+                DataContainerApplication().container.scheduleRepositoryOffline,
+                DataContainerApplication().preferencesRepository
+            )
         }
     }
 }

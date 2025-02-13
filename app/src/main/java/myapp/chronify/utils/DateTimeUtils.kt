@@ -11,12 +11,17 @@ import java.time.LocalTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import myapp.chronify.R.string
+import java.time.temporal.ChronoUnit
 
 // 转换为epochMillis（从1970-01-01开始的毫秒数）
-fun LocalDate.toEpochMilli(): Long {
+fun LocalDate.toEpochMillis(): Long {
     return this.atStartOfDay(ZoneId.systemDefault())
         .toInstant()
         .toEpochMilli()
+}
+
+fun LocalDate.daysUntil(endDate: LocalDate): Long {
+    return ChronoUnit.DAYS.between(this, endDate)
 }
 
 // Long转回LocalDateTime

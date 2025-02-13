@@ -18,6 +18,13 @@
     <string name="full_schedule">Chronify</string>
     <string name="back">Back</string>
     <string name="add_button">Add a Schedule</string>
+    <!--  schedule type  -->
+    <string name="schedule_type_default">default</string>
+    <string name="schedule_type_reminder">reminder</string>
+    <string name="schedule_type_check_in">check-in</string>
+    <string name="schedule_type_cyclical">cyclical</string>
+    <string name="schedule_type_mission">mission</string>
+    <string name="schedule_type_undefined">undefined</string>
     <!--  navigation drawer  -->
     <string name="todo_list">Todos</string>
     <string name="todo_reminder">Reminder</string>
@@ -30,7 +37,6 @@
     <string name="unfinished">Unfinished</string>
     <string name="finished">Finished</string>
     <string name="all">All</string>
-
     <!--  add screen  -->
     <string name="add_schedule_title">Add Schedule</string>
     <string name="delete_button">Delete</string>
@@ -45,13 +51,6 @@
     <string name="endDT_req">End</string>
     <string name="description_req">Schedule Description</string>
     <string name="location_req">Schedule Location</string>
-    <!--  schedule type  -->
-    <string name="schedule_type_default">default</string>
-    <string name="schedule_type_reminder">reminder</string>
-    <string name="schedule_type_check_in">check-in</string>
-    <string name="schedule_type_cyclical">cyclical</string>
-    <string name="schedule_type_mission">mission</string>
-    <string name="schedule_type_undefined">undefined</string>
     <!--  date&time picker  -->
     <string name="date_time_picker_label">pick Date&amp;Time</string>
     <string name="date_time_picker_title">Select Date and Time</string>
@@ -63,6 +62,10 @@
     <string name="today">Tod</string>
     <string name="yesterday">Yst</string>
     <string name="clear_date_time">clear picked date and time</string>
+    <!-- statistics screen -->
+    <string name="statistics_title">Statistics</string>
+    <string name="search_schedule">Search Schedule</string>
+    <string name="toggle_statistics">toggle statistics mode</string>
 
     <!-- bus schedule -->
     <string name="stop_name">Stop Name</string>

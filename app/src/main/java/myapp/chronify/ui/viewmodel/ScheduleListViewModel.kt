@@ -10,19 +10,19 @@ import myapp.chronify.data.schedule.ScheduleRepository
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
+import myapp.chronify.data.PreferencesRepository
 
 data class ScheduleListUiState(val scheduleList: List<ScheduleEntity> = listOf())
 
-// 添加一个枚举类表示筛选状态
+// 枚举类表示筛选状态
 enum class ScheduleFilter {
     UNFINISHED, FINISHED, ALL
 }
 
-class ScheduleListViewModel(val scheduleRepository: ScheduleRepository) : ViewModel() {
-
-    companion object {
-        private const val TIMEOUT_MILLIS = 5_000L
-    }
+class ScheduleListViewModel(
+    private val scheduleRepository: ScheduleRepository,
+    private val preferencesRepository: PreferencesRepository
+) : ViewModel() {
 
     // 添加当前筛选状态
     private val _currentFilter = MutableStateFlow(ScheduleFilter.UNFINISHED)
