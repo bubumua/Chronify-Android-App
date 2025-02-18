@@ -14,6 +14,7 @@ import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.TimePickerState
 import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -30,6 +31,9 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import myapp.chronify.R.string
 import myapp.chronify.utils.combineDateTimeState
+import myapp.chronify.utils.toLocalTime
+import java.time.LocalDate
+import java.time.LocalDateTime
 import java.util.Calendar
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -141,10 +145,11 @@ fun DateTimePickerDialog(
     }
 }
 
+
 @Preview(showBackground = true)
 @Composable
 fun DateTimePickerDialogPreview() {
-    DateTimePickerDialog(
-        onDismiss = {}
-    )
+    // DateTimePickerDialog(
+    //     onDismiss = {},
+    // )
 }

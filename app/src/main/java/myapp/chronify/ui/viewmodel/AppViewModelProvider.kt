@@ -56,6 +56,18 @@ object AppViewModelProvider {
                 DataContainerApplication().preferencesRepository
             )
         }
+        initializer {
+            MarkerViewModel(
+                DataContainerApplication().container.nifeRepository,
+                DataContainerApplication().preferencesRepository
+            )
+        }
+        initializer {
+            AddNifeViewModel(
+                DataContainerApplication().container.nifeRepository,
+                DataContainerApplication().preferencesRepository
+            )
+        }
     }
 }
 

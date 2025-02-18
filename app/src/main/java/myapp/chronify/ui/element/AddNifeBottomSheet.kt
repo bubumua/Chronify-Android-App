@@ -1,17 +1,16 @@
 package myapp.chronify.ui.element
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.AssistChipDefaults
 import androidx.compose.material3.Checkbox
@@ -19,18 +18,22 @@ import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.InputChip
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.SegmentedButton
+import androidx.compose.material3.SegmentedButtonDefaults
 import androidx.compose.material3.SheetState
+import androidx.compose.material3.SingleChoiceSegmentedButtonRow
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.rememberModalBottomSheetState
+import androidx.compose.material3.TimePickerState
+import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -45,26 +48,29 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.viewmodel.compose.viewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import myapp.chronify.R.dimen
-import myapp.chronify.R.drawable
 import myapp.chronify.R.string
-import myapp.chronify.datamodel.Schedule
-import myapp.chronify.datamodel.ScheduleType
-import myapp.chronify.datamodel.getIcon
-import myapp.chronify.datamodel.getLocalizedName
-import myapp.chronify.ui.element.screen.ScheduleDTText
-import myapp.chronify.ui.theme.bluesimple.BlueSimpleTheme
+import myapp.chronify.R.dimen
+import myapp.chronify.data.nife.Nife
+import myapp.chronify.data.nife.NifeType
+import myapp.chronify.data.nife.getIcon
+import myapp.chronify.data.nife.getLocalizedName
+import myapp.chronify.ui.element.screen.NifeDTText
+import myapp.chronify.ui.viewmodel.AddNifeViewModel
 import myapp.chronify.ui.viewmodel.AppViewModelProvider
-import myapp.chronify.ui.viewmodel.ScheduleAddViewModel
+import myapp.chronify.utils.toLocalTime
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.util.Calendar
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AddScheduleBottomSheet(
+fun AddNifeBottomSheet(
     sheetState: SheetState,
     onDismissRequest: () -> Unit = {}
 ) {
@@ -72,21 +78,18 @@ fun AddScheduleBottomSheet(
         sheetState = sheetState,
         onDismissRequest = onDismissRequest,
     ) {
-        AddScheduleBottomSheetContent(onDismissRequest = onDismissRequest)
+        AddNifeBottomSheetContent(onDismissRequest = onDismissRequest)
     }
 }
 
-
 @Composable
-fun AddScheduleBottomSheetContent(
-    viewModel: ScheduleAddViewModel = viewModel(factory = AppViewModelProvider.Factory),
-    onValueChange: (Schedule) -> Unit = viewModel::updateUiState,
-    onDismissRequest: () -> Unit = {},
+fun AddNifeBottomSheetContent(
+    viewModel: AddNifeViewModel = viewModel(factory = AppViewModelProvider.Factory),
+    onDismissRequest: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val coroutineScope = rememberCoroutineScope()
-    val scheduleUiState = viewModel.scheduleUiState
-    val schedule = viewModel.scheduleUiState.schedule
+    val uiState = viewModel.uiState
     var showDateTimePicker by remember { mutableStateOf(false) }
 
     Column(modifier = modifier.fillMaxSize()) {
@@ -98,11 +101,12 @@ fun AddScheduleBottomSheetContent(
                 modifier = Modifier.align(Alignment.Center)
             )
             TextButton(
-                enabled = scheduleUiState.isValid,
+                enabled = uiState.isValid,
                 onClick = {
                     coroutineScope.launch {
-                        viewModel.saveScheduleEntity()
-                        viewModel.updateUiState(Schedule())
+                        viewModel.saveNife()
+                        // TODO: according to the preference, whether to clear the uiState after saving
+                        viewModel.updateUiState(nife = Nife(title = ""))
                     }
                     onDismissRequest()
                 },
@@ -118,18 +122,19 @@ fun AddScheduleBottomSheetContent(
             verticalAlignment = Alignment.CenterVertically
         ) {
             AutoFocusedOutlineTextField(
-                schedule = schedule,
-                onValueChange = onValueChange,
+                onValueChange = {text->
+                    viewModel.updateUiState(uiState.nife.copy(title = text))
+                },
                 modifier = Modifier.weight(1f),
             )
             Spacer(modifier = Modifier.width(dimensionResource(dimen.padding_tiny)))
             Checkbox(
-                checked = schedule.isFinished,
+                checked = uiState.nife.isFinished,
                 onCheckedChange = {
-                    onValueChange(
-                        schedule.copy(
+                    viewModel.updateUiState(
+                        uiState.nife.copy(
                             isFinished = it,
-                            endDT = System.currentTimeMillis()
+                            endDT = LocalDateTime.now()
                         )
                     )
                 },
@@ -140,14 +145,14 @@ fun AddScheduleBottomSheetContent(
         Row(
             modifier = Modifier.fillMaxWidth()
         ) {
-            TypeMenuChip(
-                initialType = ScheduleType.REMINDER,
-                onSelect = {
-                    onValueChange(
-                        schedule.copy(
-                            type = it,
-                            isFinished = when (it) {
-                                ScheduleType.CHECK_IN -> true
+            NifeTypeDropdownChip(
+                initialType = uiState.nife.type,
+                onSelect = { type ->
+                    viewModel.updateUiState(
+                        uiState.nife.copy(
+                            type = type,
+                            isFinished = when (type) {
+                                NifeType.RECORD -> true
                                 else -> false
                             }
                         )
@@ -157,16 +162,17 @@ fun AddScheduleBottomSheetContent(
 
             DateTimeChip(
                 label = {
-                    ScheduleDTText(
-                        schedule,
-                        placeholderStr = stringResource(string.date_time_picker_label)
+                    NifeDTText(
+                        nife = uiState.nife,
+                        placeholderStr = stringResource(string.date_time_picker_label),
+                        ifRenderOutdated = true
                     )
                 },
-                isSelected = !(schedule.beginDT == null && schedule.endDT == null),
+                isSelected = !(uiState.nife.beginDT == null && uiState.nife.endDT == null),
                 onClick = { showDateTimePicker = true },
                 onClose = {
-                    onValueChange(
-                        schedule.copy(
+                    viewModel.updateUiState(
+                        uiState.nife.copy(
                             beginDT = null,
                             endDT = null
                         )
@@ -179,11 +185,11 @@ fun AddScheduleBottomSheetContent(
     }
 
     if (showDateTimePicker) {
-        DateTimePickerDialog(
+        DateTimePickerDialogLDT(
             onDismiss = { showDateTimePicker = false },
-            onConfirm = { beginDT: Long?, endDT: Long? ->
-                onValueChange(
-                    schedule.copy(
+            onConfirm = { beginDT:LocalDateTime?, endDT:LocalDateTime? ->
+                viewModel.updateUiState(
+                    uiState.nife.copy(
                         beginDT = beginDT,
                         endDT = endDT ?: beginDT
                     )
@@ -196,13 +202,12 @@ fun AddScheduleBottomSheetContent(
 
 @Composable
 private fun AutoFocusedOutlineTextField(
-    schedule: Schedule,
-    onValueChange: (Schedule) -> Unit,
+    onValueChange: (String) -> Unit,
     initialTextString: String = "",
     modifier: Modifier = Modifier
 ) {
     val focusRequester = remember { FocusRequester() }
-    val textFieldValueState = remember { mutableStateOf(TextFieldValue(schedule.title)) }
+    val textFieldValueState = remember { mutableStateOf(TextFieldValue(initialTextString)) }
 
     LaunchedEffect(Unit) {
         delay(300) // Optional delay to ensure the TextField is fully composed
@@ -212,7 +217,7 @@ private fun AutoFocusedOutlineTextField(
     OutlinedTextField(
         value = textFieldValueState.value,
         onValueChange = {
-            onValueChange(schedule.copy(title = it.text))
+            onValueChange(it.text)
             textFieldValueState.value = it
         },
         label = { stringResource(string.title_req) },
@@ -238,14 +243,14 @@ private fun AutoFocusedOutlineTextField(
 
 
 @Composable
-fun TypeMenuChip(
-    initialType: ScheduleType,
-    onSelect: (ScheduleType) -> Unit = {},
-    modifier: Modifier = Modifier
+fun NifeTypeDropdownChip(
+    initialType: NifeType,
+    onSelect: (NifeType) -> Unit,
+    modifier: Modifier=Modifier
 ) {
     var expanded by remember { mutableStateOf(false) }
     var selectedType by remember { mutableStateOf(initialType) }
-    val types = ScheduleType.entries
+    val types= NifeType.entries
 
     Box(
         modifier = modifier
@@ -285,74 +290,116 @@ fun TypeMenuChip(
     }
 }
 
-@Preview(showBackground = true)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TypeMenuPreview() {
-    TypeMenuChip(ScheduleType.REMINDER)
-}
-
-@Composable
-fun DateTimeChip(
-    label: @Composable () -> Unit,
-    isSelected: Boolean = false,
-    onClick: () -> Unit = {},
-    onClose: () -> Unit = {},
-    enabled: Boolean = true,
-    modifier: Modifier = Modifier
+fun DateTimePickerDialogLDT(
+    onDismiss: () -> Unit,
+    onConfirm: (LocalDateTime?, LocalDateTime?) -> Unit = { _, _ -> onDismiss() }
 ) {
-    InputChip(
-        selected = isSelected,
-        onClick = onClick,
-        label = label,
-        modifier = modifier,
-        enabled = enabled,
-        leadingIcon = {
-            Icon(
-                painterResource(drawable.calendar_add_on_24px),
-                contentDescription = stringResource(string.date_time_picker_label),
-                Modifier.size(AssistChipDefaults.IconSize)
-            )
-        },
-        trailingIcon = {
-            if (isSelected)
-                IconButton(
-                    onClick = onClose,
-                    modifier = Modifier.size(AssistChipDefaults.IconSize)
-                ) {
-                    Icon(
-                        Icons.Default.Close,
-                        contentDescription = stringResource(string.clear_date_time),
-                        Modifier.size(AssistChipDefaults.IconSize)
-                    )
-                }
-        }
-    )
-}
+    Dialog(
+        onDismissRequest = onDismiss,
+        properties = DialogProperties(
+            usePlatformDefaultWidth = true,
+            dismissOnClickOutside = true,
+            dismissOnBackPress = true
+        ),
+    ) {
+        Surface(
+            shape = MaterialTheme.shapes.extraLarge,
+            tonalElevation = 6.dp,
+            modifier = Modifier
+                // .width(IntrinsicSize.Min)
+                .fillMaxWidth()
+                // .height(IntrinsicSize.Min)
+                // .height(600.dp)
+                .background(
+                    shape = MaterialTheme.shapes.extraLarge,
+                    color = MaterialTheme.colorScheme.surface
+                ),
+        ) {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier.padding(24.dp),
+            ) {
 
-@Preview(showBackground = true)
-@Composable
-fun AddScheduleBottomSheetContentPreview() {
-    BlueSimpleTheme {
-        AddScheduleBottomSheetContent()
+                var selectedIndex by remember { mutableIntStateOf(0) }
+                val options = listOf("Date", "Time")
+
+                SingleChoiceSegmentedButtonRow {
+                    options.forEachIndexed { index, label ->
+                        SegmentedButton(
+                            shape = SegmentedButtonDefaults.itemShape(
+                                index = index,
+                                count = options.size
+                            ),
+                            onClick = { selectedIndex = index },
+                            selected = index == selectedIndex,
+                        ) { Text(label) }
+                    }
+                }
+
+                var selectedDateRange by remember { mutableStateOf(DateRange()) }
+                val calender = Calendar.getInstance()
+                val timePickerState = rememberTimePickerState(
+                    initialHour = calender.get(Calendar.HOUR_OF_DAY),
+                    initialMinute = calender.get(Calendar.MINUTE),
+                    is24Hour = false,
+                )
+
+                when (selectedIndex) {
+                    // pick date
+                    0 -> {
+                        SimpleDateRangePicker(
+                            initialDateRange = selectedDateRange,
+                            startFromSunday = false,
+                            onDateRangeSelected = { dr ->
+                                selectedDateRange = dr
+                            },
+                        )
+                    }
+                    // pick time
+                    1 -> {
+                        TimePolymer(timePickerState)
+                    }
+
+                    else -> {}
+                }
+
+                Row(
+                    horizontalArrangement = Arrangement.End,
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    TextButton(onClick = onDismiss) { Text(stringResource(string.cancel)) }
+                    TextButton(
+                        onClick = {
+                            onConfirm(
+                                if (selectedDateRange.startDate != null) {
+                                    merge_LD_TPS(
+                                        selectedDateRange.startDate!!,
+                                        timePickerState
+                                    )
+                                } else {
+                                    null
+                                },
+                                if (selectedDateRange.endDate != null) {
+                                    merge_LD_TPS(
+                                        selectedDateRange.endDate!!,
+                                        timePickerState
+                                    )
+                                } else {
+                                    null
+                                }
+                            )
+                        }
+                    ) { Text(stringResource(string.confirm)) }
+                }
+            }
+        }
     }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
-@Preview(showBackground = true)
-@Composable
-fun AddScheduleBottomSheetPreview() {
-    BlueSimpleTheme {
-        val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = false)
-        var showBottomSheet by remember { mutableStateOf(false) }
-
-        ModalBottomSheet(
-            sheetState = sheetState,
-            onDismissRequest = { showBottomSheet = false },
-            modifier = Modifier.fillMaxHeight(),
-        ) {
-            AddScheduleBottomSheetContent()
-        }
-    }
-
-
+fun merge_LD_TPS(date: LocalDate, timeState: TimePickerState):LocalDateTime{
+    return LocalDateTime.of(date, timeState.toLocalTime())
 }

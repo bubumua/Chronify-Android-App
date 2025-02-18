@@ -1,6 +1,7 @@
 package myapp.chronify.data
 
 import android.content.Context
+import myapp.chronify.data.nife.NifeRepository
 import myapp.chronify.data.schedule.ScheduleRepositoryOffline
 
 /**
@@ -9,6 +10,9 @@ import myapp.chronify.data.schedule.ScheduleRepositoryOffline
 class AppDataContainer(private val context: Context){
     val scheduleRepositoryOffline: ScheduleRepositoryOffline by lazy {
         ScheduleRepositoryOffline(AppDatabase.getDatabase(context).scheduleDao())
+    }
+    val nifeRepository: NifeRepository by lazy {
+        NifeRepository(AppDatabase.getDatabase(context).nifeDao())
     }
 
 }

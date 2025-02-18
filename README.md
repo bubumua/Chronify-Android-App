@@ -32,14 +32,15 @@ Many functions are developing, basic adding, deleting and editing is completed.
 Schedule type: CYCLICAL, REMINDER, MISSION, CHECK_IN, DEFAULT
 
 | Schedule Type | Description                        | non-null Attributes | nullable Attributes  |
-| ------------- | ---------------------------------- | ------------------- | -------------------- |
+|---------------| ---------------------------------- | ------------------- | -------------------- |
 | REMINDER      | Reminds you at a specific time     | end                 | begin, interval      |
-| CHECK_IN      | Check in at a specific time        | begin/end           | begin/end, interval  |
+| RECORD        | Check in at a specific time        | begin/end           | begin/end, interval  |
 | CYCLICAL      | Repeats every day at the same time | begin, interval     | begin, end           |
-| MISSION       | A mission that needs to be done    | begin               | interval, end        |
 | DEFAULT       | A default schedule                 |                     | begin, end, interval |
 
 ## Project structure
+
+### Data Layer
 
 The schedule data are stored in a Room database. Schedule items are represented by the `Schedule` class and queries on the data table are made by the `ScheduleDao` class. The app includes some view model to access the `ScheduleDao` and format data to be display to users.
 
@@ -49,6 +50,8 @@ The schedule data are stored in a Room database. Schedule items are represented 
 - 扩展性：如果将来需要添加其他数据源（例如网络数据源），你只需创建一个新的实现类（例如 OnlineItemsRepository），而不需要修改现有的代码。  
 - 遵循SOLID原则：接口和实现分离符合面向对象设计中的SOLID原则，特别是依赖倒置原则（DIP），这有助于创建更健壮和可维护的代码。 
 通过这种方式，你的代码将更具灵活性、可维护性和可测试性。
+
+### UI Layer
 
 # For developers
 

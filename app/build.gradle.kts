@@ -78,18 +78,30 @@ dependencies {
     implementation("androidx.core:core-ktx:1.15.0")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.8.7")
     implementation("androidx.navigation:navigation-compose:${rootProject.extra["nav_version"]}")
-    implementation("androidx.room:room-ktx:${rootProject.extra["room_version"]}")
-    implementation("androidx.room:room-runtime:${rootProject.extra["room_version"]}")
     implementation("com.google.firebase:protolite-well-known-types:18.0.0")
     implementation("androidx.datastore:datastore-preferences:1.0.0")
     implementation ("org.jetbrains.kotlinx:kotlinx-collections-immutable-jvm:0.3.4")
+
+    // Room
+    implementation("androidx.room:room-runtime:${rootProject.extra["room_version"]}")
+    ksp("androidx.room:room-compiler:${rootProject.extra["room_version"]}")
+    // optional - Kotlin Extensions and Coroutines support for Room
+    implementation("androidx.room:room-ktx:${rootProject.extra["room_version"]}")
+    // optional - Paging 3 Integration
+    implementation("androidx.room:room-paging:${rootProject.extra["room_version"]}")
+    val paging_version = "3.3.6"
+    implementation("androidx.paging:paging-runtime:$paging_version")
+    // optional - Jetpack Compose integration
+    implementation("androidx.paging:paging-compose:3.3.6")
+    // optional - Test helpers
+    testImplementation("androidx.room:room-testing:2.6.1")
+    // Gson
+    implementation("com.google.code.gson:gson:2.10.1")
+
     // test room
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
 
-    ksp("androidx.room:room-compiler:${rootProject.extra["room_version"]}")
-
-    testImplementation("androidx.room:room-testing:2.6.1")
 
     debugImplementation("androidx.compose.ui:ui-test-manifest")
     debugImplementation("androidx.compose.ui:ui-tooling")

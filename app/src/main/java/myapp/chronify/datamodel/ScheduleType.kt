@@ -39,15 +39,3 @@ fun ScheduleType.getIcon(): Int {
         else -> drawable.event_note_24px
     }
 }
-
-class Converters {
-    @TypeConverter
-    fun fromScheduleType(value: ScheduleType): String {
-        return value.name
-    }
-
-    @TypeConverter
-    fun toScheduleType(value: String): ScheduleType {
-        return ScheduleType.valueOf(value)
-    }
-}

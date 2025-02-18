@@ -67,6 +67,34 @@ fun combineLocalDateLocalTime(date: LocalDate, time: LocalTime): Long {
         .toEpochMilli()
 }
 
+@Composable
+fun LocalDateTime.toFriendlyString(): String {
+    val now = LocalDateTime.now()
+
+    return when {
+        this.toLocalDate() == now.minusDays(2).toLocalDate() ->
+            "${stringResource(string.ereyesterday)} ${this.toLocalTime()}"
+
+        this.toLocalDate() == now.minusDays(1).toLocalDate() ->
+            "${stringResource(string.yesterday)} ${this.toLocalTime()}"
+
+        this.toLocalDate() == now.toLocalDate() ->
+            "${stringResource(string.today)} ${this.toLocalTime()}"
+
+        this.toLocalDate() == now.plusDays(1).toLocalDate() ->
+            "${stringResource(string.tomorrow)} ${this.toLocalTime()}"
+
+        this.toLocalDate() == now.plusDays(2).toLocalDate() ->
+            "${stringResource(string.overmorrow)} ${this.toLocalTime()}"
+
+        this.year == now.year ->
+            this.format(DateTimeFormatter.ofPattern("MM-dd HH:mm"))
+
+        else ->
+            this.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"))
+    }
+}
+
 object MyDateTimeFormatter {
     private val isoFormatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME
     private val isoOnSecFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
@@ -108,12 +136,16 @@ object MyDateTimeFormatter {
         return when {
             dateTime.toLocalDate() == now.toLocalDate() ->
                 "${dateTime.format(timeOnlyFormatter)}"
+
             dateTime.toLocalDate() == now.minusDays(1).toLocalDate() ->
                 "${stringResource(string.yesterday)} ${dateTime.format(timeOnlyFormatter)}"
+
             dateTime.year == now.year ->
                 dateTime.format(DateTimeFormatter.ofPattern("MM-dd HH:mm"))
+
             else ->
                 dateTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd- HH:mm"))
         }
     }
+
 }
