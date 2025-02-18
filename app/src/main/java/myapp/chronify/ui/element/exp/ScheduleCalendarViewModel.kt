@@ -1,18 +1,10 @@
-package myapp.chronify.ui.viewmodel
+package myapp.chronify.ui.element.exp
 
-import android.util.Log
 import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.launch
 import myapp.chronify.data.schedule.ScheduleEntity
 import myapp.chronify.data.schedule.ScheduleRepository
-import java.time.Instant
 import java.time.LocalDate
-import java.time.ZoneId
 
 data class DaySchedules(
     val date: LocalDate,

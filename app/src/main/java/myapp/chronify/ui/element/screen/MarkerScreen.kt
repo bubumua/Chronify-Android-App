@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
@@ -22,6 +21,9 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SegmentedButton
+import androidx.compose.material3.SegmentedButtonDefaults
+import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberModalBottomSheetState
@@ -47,19 +49,23 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import myapp.chronify.R.dimen
 import myapp.chronify.R.string
 import myapp.chronify.data.nife.Nife
 import myapp.chronify.ui.element.AddNifeBottomSheet
-import myapp.chronify.ui.element.AppTopBar
+import myapp.chronify.ui.element.component.AppTopBar
 import myapp.chronify.ui.element.exp.SwipeableListItem
-import myapp.chronify.ui.viewmodel.AddNifeViewModel
+import myapp.chronify.ui.navigation.NavigationRoute
 import myapp.chronify.ui.viewmodel.AppViewModelProvider
 import myapp.chronify.ui.viewmodel.MarkerViewModel
+import myapp.chronify.ui.viewmodel.ListFilter
 import myapp.chronify.utils.toFriendlyString
 import java.time.LocalDateTime
+
+object MarkerScreenRoute : NavigationRoute {
+    override val route = "marker"
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -182,6 +188,36 @@ fun MarkerScreenContent(
 }
 
 @Composable
+fun ScheduleListFilter(
+    currentFilter: ListFilter,
+    onFilterChanged: (ListFilter) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    SingleChoiceSegmentedButtonRow(
+        modifier = modifier
+    ) {
+        ListFilter.entries.forEachIndexed { index, filter ->
+            SegmentedButton(
+                selected = currentFilter == filter,
+                onClick = { onFilterChanged(filter) },
+                shape = SegmentedButtonDefaults.itemShape(
+                    index = index,
+                    count = ListFilter.entries.size
+                ),
+            ) {
+                Text(
+                    text = when (filter) {
+                        ListFilter.UNFINISHED -> stringResource(string.unfinished)
+                        ListFilter.FINISHED -> stringResource(string.finished)
+                        ListFilter.ALL -> stringResource(string.all)
+                    }
+                )
+            }
+        }
+    }
+}
+
+@Composable
 private fun NifeList(
     lazyItems: LazyPagingItems<Nife>,
     viewModel: MarkerViewModel = viewModel(factory = AppViewModelProvider.Factory),
@@ -208,7 +244,7 @@ private fun NifeList(
                             viewModel.updateNife(
                                 it.copy(
                                     isFinished = !it.isFinished,
-                                    endDT = LocalDateTime.now()
+                                    endDT = if (!it.isFinished) LocalDateTime.now() else null
                                 )
                             )
                         }

@@ -46,13 +46,13 @@
     <!--  detail edit screen  -->
     <string name="edit_title">Detail Edit</string>
     <string name="submit">Save</string>
-    <string name="title_req">Schedule Title*</string>
-    <string name="type_req">Schedule Type*</string>
+    <string name="title_req">Title*</string>
+    <string name="type_req">Type*</string>
     <string name="isFinished_req">finished*</string>
     <string name="beginDT_req">Begin</string>
     <string name="endDT_req">End</string>
-    <string name="description_req">Schedule Description</string>
-    <string name="location_req">Schedule Location</string>
+    <string name="description_req">Description</string>
+    <string name="location_req">Location</string>
     <!--  date&time picker  -->
     <string name="date_time_picker_label">pick Date&amp;Time</string>
     <string name="date_time_picker_title">Select Date and Time</string>

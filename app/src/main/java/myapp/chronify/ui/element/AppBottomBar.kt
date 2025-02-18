@@ -10,7 +10,7 @@ import androidx.compose.ui.res.stringResource
 import myapp.chronify.ui.navigation.NavigationRoute
 import myapp.chronify.R.drawable
 import myapp.chronify.R.string
-import myapp.chronify.ui.element.screen.JournalScreenRoute
+import myapp.chronify.ui.element.screen.MarkerScreenRoute
 import myapp.chronify.ui.element.screen.SettingsScreenRoute
 import myapp.chronify.ui.element.screen.StatisticsScreenRoute
 
@@ -20,12 +20,12 @@ sealed class BottomNavItem(
     val selectedIconRes: Int
 ) {
 
-    object Journal : NavigationRoute, BottomNavItem(
-        screenTitleRes = string.journal,
+    object Marker : NavigationRoute, BottomNavItem(
+        screenTitleRes = string.marker_title,
         iconRes = drawable.diagnosis_24px,
         selectedIconRes = drawable.filled_diagnosis_24px
     ) {
-        override val route: String = JournalScreenRoute.route
+        override val route: String = MarkerScreenRoute.route
     }
 
     object Statistics : NavigationRoute, BottomNavItem(
@@ -51,7 +51,7 @@ fun AppBottomBar(
     onNavigateToRoute: (String) -> Unit
 ) {
     val screens = listOf(
-        BottomNavItem.Journal,
+        BottomNavItem.Marker,
         BottomNavItem.Statistics,
         BottomNavItem.Settings
     )

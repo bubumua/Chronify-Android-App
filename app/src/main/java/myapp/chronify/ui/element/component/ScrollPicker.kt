@@ -1,4 +1,4 @@
-package myapp.chronify.ui.element
+package myapp.chronify.ui.element.component
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column

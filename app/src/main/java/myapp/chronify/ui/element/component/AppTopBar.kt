@@ -1,4 +1,4 @@
-package myapp.chronify.ui.element
+package myapp.chronify.ui.element.component
 
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.material3.CenterAlignedTopAppBar
@@ -27,19 +27,6 @@ fun AppTopBar(
             actions = actions,
             scrollBehavior = scrollBehavior,
             navigationIcon = navigationIcon
-
-            // {
-            //     if (canNavigateBack) {
-            //         IconButton(onClick = onBackClick) {
-            //             Icon(
-            //                 imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-            //                 contentDescription = stringResource(
-            //                     R.string.back
-            //                 )
-            //             )
-            //         }
-            //     }
-            // }
         )
     } else {
         TopAppBar(

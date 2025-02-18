@@ -32,28 +32,16 @@ import myapp.chronify.data.schedule.ScheduleDao
 import myapp.chronify.data.schedule.ScheduleEntity
 
 @Database(
-    entities = [ScheduleEntity::class, Nife::class],
-    version = 3,
+    entities = [Nife::class],
+    version = 4,
     exportSchema = true,
-    // autoMigrations = [
-    //     AutoMigration(from = 1, to = 2),
-    // ]
 )
 @TypeConverters(NifeConverters::class)
 abstract class AppDatabase : RoomDatabase() {
 
     // get DAOs
-    abstract fun scheduleDao(): ScheduleDao
     abstract fun nifeDao(): NifeDao
-
-    // Define the auto-migration
-    // @RenameTable(fromTableName = "User", toTableName = "AppUser")
-    @DeleteTable.Entries(
-        DeleteTable(
-            tableName = "Schedule"
-        )
-    )
-    class AutoMigrationFrom2To3 : AutoMigrationSpec
+    // abstract fun scheduleDao(): ScheduleDao
 
     companion object {
         @Volatile
@@ -66,22 +54,30 @@ abstract class AppDatabase : RoomDatabase() {
                 db.execSQL("DROP TABLE IF EXISTS Schedule")
 
                 // 创建新表（Room会自动生成Nife表的SQL）
-                db.execSQL("""
-            CREATE TABLE IF NOT EXISTS `Nife` (
-                `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-                `title` TEXT NOT NULL,
-                `type` TEXT NOT NULL,
-                `isFinished` INTEGER NOT NULL,
-                `createdDT` INTEGER NOT NULL,
-                `beginDT` INTEGER,
-                `endDT` INTEGER,
-                `period` TEXT,
-                `periodMultiple` INTEGER NOT NULL,
-                `triggerTimes` TEXT NOT NULL,
-                `description` TEXT NOT NULL,
-                `location` TEXT NOT NULL
-            )
-        """)
+                db.execSQL(
+                    """
+                    CREATE TABLE IF NOT EXISTS `Nife` (
+                        `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                        `title` TEXT NOT NULL,
+                        `type` TEXT NOT NULL,
+                        `isFinished` INTEGER NOT NULL,
+                        `createdDT` INTEGER NOT NULL,
+                        `beginDT` INTEGER,
+                        `endDT` INTEGER,
+                        `period` TEXT,
+                        `periodMultiple` INTEGER NOT NULL,
+                        `triggerTimes` TEXT NOT NULL,
+                        `description` TEXT NOT NULL,
+                        `location` TEXT NOT NULL
+                    )
+                    """
+                )
+            }
+        }
+        val MIGRATION_3_4 = object : Migration(3, 4) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                // 删除旧表（如果需要）
+                db.execSQL("DROP TABLE IF EXISTS ScheduleEntity")
             }
         }
 
@@ -96,6 +92,7 @@ abstract class AppDatabase : RoomDatabase() {
                     // Wipes and rebuilds instead of migrating if no Migration object.
                     // .fallbackToDestructiveMigration()
                     .addMigrations(MIGRATION_2_3)
+                    .addMigrations(MIGRATION_3_4)
                     .build()
                     .also {
                         INSTANCE = it

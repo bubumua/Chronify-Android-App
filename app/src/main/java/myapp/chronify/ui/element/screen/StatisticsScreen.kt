@@ -1,6 +1,5 @@
 package myapp.chronify.ui.element.screen
 
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -12,11 +11,9 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -49,7 +46,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import myapp.chronify.R.string
 import myapp.chronify.R.dimen
 import myapp.chronify.data.schedule.ScheduleEntity
-import myapp.chronify.ui.element.AppTopBar
+import myapp.chronify.ui.element.component.AppTopBar
 import myapp.chronify.ui.navigation.NavigationRoute
 import myapp.chronify.ui.viewmodel.AppViewModelProvider
 import myapp.chronify.ui.viewmodel.StatisticsViewModel
@@ -76,7 +73,7 @@ fun StatisticsScreen(
 
     var searchText by remember { mutableStateOf("") }
     var selectedDate by remember { mutableStateOf<LocalDate?>(null) }
-    val schedules = uiState.selectedDateSchedules
+
 
     Scaffold(
         modifier = modifier.nestedScroll(scrollBehavior.nestedScrollConnection),

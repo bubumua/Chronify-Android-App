@@ -8,6 +8,7 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import myapp.chronify.DataContainerApplication
 
+
 const val TIMEOUT_MILLIS = 5_000L
 
 /**
@@ -23,51 +24,37 @@ fun CreationExtras.DataContainerApplication(): DataContainerApplication =
 object AppViewModelProvider {
     val Factory: ViewModelProvider.Factory = viewModelFactory {
         initializer {
-            ScheduleListViewModel(
-                DataContainerApplication().container.scheduleRepositoryOffline,
-                DataContainerApplication().preferencesRepository
-            )
-        }
-        initializer {
-            ScheduleAddViewModel(
-                DataContainerApplication().container.scheduleRepositoryOffline,
-                DataContainerApplication().preferencesRepository
-            )
-        }
-        initializer {
-            ScheduleEditViewModel(
-                this.createSavedStateHandle(),
-                DataContainerApplication().container.scheduleRepositoryOffline,
-                DataContainerApplication().preferencesRepository
-            )
-        }
-        initializer {
-            ScheduleCalendarViewModel(DataContainerApplication().container.scheduleRepositoryOffline)
-        }
-        initializer {
-            StatisticsViewModel(
-                DataContainerApplication().container.scheduleRepositoryOffline,
-                DataContainerApplication().preferencesRepository
-            )
-        }
-        initializer {
-            SettingsViewModel(
-                DataContainerApplication().container.scheduleRepositoryOffline,
-                DataContainerApplication().preferencesRepository
-            )
-        }
-        initializer {
             MarkerViewModel(
                 DataContainerApplication().container.nifeRepository,
                 DataContainerApplication().preferencesRepository
             )
         }
         initializer {
-            AddNifeViewModel(
+            NifeAddViewModel(
                 DataContainerApplication().container.nifeRepository,
                 DataContainerApplication().preferencesRepository
             )
         }
+        initializer {
+            NifeEditViewModel(
+                this.createSavedStateHandle(),
+                DataContainerApplication().container.nifeRepository,
+                DataContainerApplication().preferencesRepository
+            )
+        }
+        initializer {
+            StatisticsViewModel(
+                DataContainerApplication().container.nifeRepository,
+                DataContainerApplication().preferencesRepository
+            )
+        }
+        initializer {
+            SettingsViewModel(
+                DataContainerApplication().container.nifeRepository,
+                DataContainerApplication().preferencesRepository
+            )
+        }
+
     }
 }
 

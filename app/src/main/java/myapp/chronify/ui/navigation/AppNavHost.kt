@@ -10,10 +10,10 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import myapp.chronify.ui.element.screen.EditScheduleScreen
-import myapp.chronify.ui.element.screen.EditScheduleScreenRoute
-import myapp.chronify.ui.element.screen.JournalScreen
-import myapp.chronify.ui.element.screen.JournalScreenRoute
+import myapp.chronify.ui.element.screen.EditNifeScreen
+import myapp.chronify.ui.element.screen.EditNifeScreenRoute
+import myapp.chronify.ui.element.screen.MarkerScreen
+import myapp.chronify.ui.element.screen.MarkerScreenRoute
 import myapp.chronify.ui.element.screen.SettingsScreen
 import myapp.chronify.ui.element.screen.SettingsScreenRoute
 import myapp.chronify.ui.element.screen.StatisticsScreen
@@ -29,25 +29,31 @@ fun AppNavHost(
 
     NavHost(
         navController = navController,
-        startDestination = JournalScreenRoute.route,
+        startDestination = MarkerScreenRoute.route,
         modifier = modifier
     ) {
-        composable(route = JournalScreenRoute.route) {
-            // RemindScreen(navigateToAddScreen = { navController.navigate(AddScheduleScreenRoute.route) })
-            JournalScreen(
-                navigateToEdit = { navController.navigate("${EditScheduleScreenRoute.route}/$it") }
+
+        // composable(route = JournalScreenRoute.route) {
+        //     // RemindScreen(navigateToAddScreen = { navController.navigate(AddScheduleScreenRoute.route) })
+        //     JournalScreen(
+        //         navigateToEdit = { navController.navigate("${EditScheduleScreenRoute.route}/$it") }
+        //     )
+        // }
+
+        composable(route = MarkerScreenRoute.route){
+            MarkerScreen(
+                navigateToEdit = { navController.navigate("${EditNifeScreenRoute.route}/$it") }
             )
         }
 
-
         composable(
-            route = EditScheduleScreenRoute.routeWithArgs,
-            arguments = listOf(navArgument(EditScheduleScreenRoute.itemIdArg) {
+            route = EditNifeScreenRoute.routeWithArgs,
+            arguments = listOf(navArgument(EditNifeScreenRoute.itemIdArg) {
                 type =
                     NavType.IntType
             })
         ) {
-            EditScheduleScreen(navigateBack = { navController.navigateUp() })
+            EditNifeScreen(navigateBack = { navController.navigateUp() })
         }
 
         composable(route = StatisticsScreenRoute.route) {

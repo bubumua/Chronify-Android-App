@@ -1,6 +1,5 @@
 package myapp.chronify.ui.element.screen
 
-import android.util.Log
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.waitForUpOrCancellation
@@ -30,7 +29,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -42,77 +40,75 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.viewmodel.compose.viewModel
 import kotlinx.coroutines.launch
-import myapp.chronify.ui.navigation.NavigationRoute
-import myapp.chronify.R.string
 import myapp.chronify.R.dimen
-import myapp.chronify.datamodel.Schedule
-import myapp.chronify.datamodel.ScheduleType
-import myapp.chronify.datamodel.ScheduleUiState
-import myapp.chronify.ui.element.AppTopBar
-import myapp.chronify.ui.element.DateTimePickerDialog
+import myapp.chronify.R.string
+import myapp.chronify.data.nife.Nife
+import myapp.chronify.data.nife.NifeType
+import myapp.chronify.ui.element.component.AppTopBar
 import myapp.chronify.ui.element.DateTimePickerDialogLDT
-import myapp.chronify.ui.element.EnumDropdown
-import myapp.chronify.ui.theme.bluesimple.BlueSimpleTheme
+import myapp.chronify.ui.element.component.EnumDropdown
+import myapp.chronify.ui.navigation.NavigationRoute
 import myapp.chronify.ui.viewmodel.AppViewModelProvider
-import myapp.chronify.ui.viewmodel.ScheduleEditViewModel
-import myapp.chronify.utils.MyDateTimeFormatter.toFriendlyString
+import myapp.chronify.ui.viewmodel.NifeEditViewModel
+import myapp.chronify.ui.viewmodel.NifeUiState
+import myapp.chronify.utils.toFriendlyString
+import java.time.LocalDateTime
 
-object EditScheduleScreenRoute : NavigationRoute {
-    override val route = "edit"
+object EditNifeScreenRoute : NavigationRoute {
+    override val route = "editNife"
     const val itemIdArg = "itemId"
     val routeWithArgs = "$route/{$itemIdArg}"
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun EditScheduleScreen(
+fun EditNifeScreen(
     navigateBack: () -> Unit,
-    viewModel: ScheduleEditViewModel = viewModel(factory = AppViewModelProvider.Factory),
+    viewModel: NifeEditViewModel = viewModel(factory = AppViewModelProvider.Factory),
     modifier: Modifier = Modifier,
 ) {
     val coroutineScope = rememberCoroutineScope()
-    // 由于viewModel中的uiState是异步加载，而在异步任务完成之前，uiState 使用的是默认值 ScheduleUiState()
-    // 检查 uiState 是否加载完成
-    val isLoading = viewModel.uiState.schedule.id == 0 // 表示数据未加载
-    if (isLoading) {
-        // 显示加载状态
-        Text(text = "Loading...", modifier = Modifier.fillMaxWidth())
-    } else {
-        Scaffold(
-            topBar = {
-                AppTopBar(
-                    title = stringResource(string.edit_title),
-                    centeredTitle = false,
-                    navigationIcon = {
-                        IconButton(onClick = navigateBack) {
-                            Icon(
-                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                                contentDescription = stringResource(string.back)
-                            )
-                        }
-                    },
-                    actions = {
-                        IconButton(
-                            enabled = viewModel.uiState.isValid,
-                            onClick = {
-                                coroutineScope.launch { viewModel.updateScheduleEntity() }
-                                navigateBack()
-                            }) {
-                            Icon(
-                                imageVector = Icons.Default.Done,
-                                contentDescription = stringResource(string.submit)
-                            )
-                        }
-                    },
-                    scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
-                )
-            }
-        ) { innerPadding ->
-            EditScreenBody(
-                scheduleUiState = viewModel.uiState,
+    // 由于viewModel中的uiState是异步加载，而在异步任务完成之前，uiState是空的，所以需要判断是否加载完成
+    val isLoading = viewModel.uiState.nife.id == 0 // 表示数据未加载
+
+    Scaffold(
+        topBar = {
+            AppTopBar(
+                title = stringResource(string.edit_title),
+                centeredTitle = false,
+                navigationIcon = {
+                    IconButton(onClick = navigateBack) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = stringResource(string.back)
+                        )
+                    }
+                },
+                actions = {
+                    IconButton(
+                        enabled = viewModel.uiState.isValid,
+                        onClick = {
+                            coroutineScope.launch { viewModel.save() }
+                            navigateBack()
+                        }) {
+                        Icon(
+                            imageVector = Icons.Default.Done,
+                            contentDescription = stringResource(string.submit)
+                        )
+                    }
+                },
+                scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
+            )
+        }
+    ) { innerPadding ->
+        if (isLoading) {
+            // 显示加载状态
+            Text(text = "Loading...", modifier = Modifier.fillMaxWidth())
+        } else {
+            EditContent(
+                uiState = viewModel.uiState,
                 onUiStateChange = viewModel::updateUiState,
                 modifier = Modifier
                     .padding(
@@ -124,48 +120,42 @@ fun EditScheduleScreen(
                     .fillMaxWidth()
             )
         }
+
     }
 }
 
 @Composable
-fun EditScreenBody(
-    scheduleUiState: ScheduleUiState,
-    onUiStateChange: (Schedule) -> Unit,
-    onSubmit: () -> Unit = {},
+fun EditContent(
+    uiState: NifeUiState,
+    onUiStateChange: (Nife) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(
         verticalArrangement = Arrangement.spacedBy(dimensionResource(dimen.padding_large)),
         modifier = modifier.padding(dimensionResource(dimen.padding_medium))
     ) {
-        ScheduleInputForm(
-            schedule = scheduleUiState.schedule,
+        NifeInputForm(
+            nife = uiState.nife,
             onValueChange = onUiStateChange,
-            canSubmit = scheduleUiState.isValid,
-            onSubmit = onSubmit,
             modifier = Modifier.fillMaxWidth()
         )
     }
 }
 
-
 @Composable
-fun ScheduleInputForm(
-    schedule: Schedule,
-    onValueChange: (Schedule) -> Unit,
-    onSubmit: () -> Unit = {},
-    canSubmit: Boolean = false,
-    modifier: Modifier = Modifier
+fun NifeInputForm(
+    nife: Nife,
+    onValueChange: (Nife) -> Unit,
+    modifier: Modifier
 ) {
-
     Column(
         modifier = modifier.padding(dimensionResource(dimen.padding_medium)),
         verticalArrangement = Arrangement.spacedBy(dimensionResource(dimen.padding_medium))
     ) {
         // Title
         OutlinedTextField(
-            value = schedule.title,
-            onValueChange = { onValueChange(schedule.copy(title = it)) },
+            value = nife.title,
+            onValueChange = { onValueChange(nife.copy(title = it)) },
             label = { Text(stringResource(string.title_req)) },
             modifier = Modifier.fillMaxWidth(),
             colors = OutlinedTextFieldDefaults.colors(
@@ -177,7 +167,6 @@ fun ScheduleInputForm(
         )
 
         // Type and isFinished
-        // Log.d("EditScreen", "initialValue: ${schedule.type}")
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
@@ -185,14 +174,18 @@ fun ScheduleInputForm(
         ) {
             EnumDropdown(
                 label = stringResource(string.type_req),
-                initialValue = schedule.type,
+                initialValue = nife.type,
                 onValueSelected = {
                     onValueChange(
-                        schedule.copy(
+                        nife.copy(
                             type = it,
                             isFinished = when (it) {
-                                ScheduleType.CHECK_IN -> true
+                                NifeType.RECORD -> true
                                 else -> false
+                            },
+                            endDT = when (it) {
+                                NifeType.RECORD -> LocalDateTime.now()
+                                else -> nife.endDT
                             }
                         )
                     )
@@ -201,25 +194,28 @@ fun ScheduleInputForm(
             )
             Spacer(modifier = Modifier.width(dimensionResource(dimen.padding_medium)))
             Switch(
-                checked = schedule.isFinished,
+                checked = nife.isFinished,
                 onCheckedChange = {
                     onValueChange(
-                        schedule.copy(
+                        nife.copy(
                             isFinished = it,
-                            endDT = System.currentTimeMillis()
+                            endDT = if (it) LocalDateTime.now() else null
                         )
                     )
-                }
+                },
+                modifier = Modifier.weight(1f, true)
             )
         }
+
         // beginDT and endDT
-        val beginDTMillis by remember { mutableLongStateOf(System.currentTimeMillis()) }
-        val endDTMillis by remember { mutableLongStateOf(System.currentTimeMillis()) }
+        val beginDT by remember { mutableStateOf(LocalDateTime.now()) }
+        val endDT by remember { mutableStateOf(LocalDateTime.now()) }
         var showBeginDTPicker by remember { mutableStateOf(false) }
         var showEndDTPicker by remember { mutableStateOf(false) }
 
+        // BeginDT
         OutlinedTextField(
-            value = schedule.beginDT?.toFriendlyString() ?: "",
+            value = nife.beginDT?.toFriendlyString() ?: "",
             onValueChange = { },
             label = { Text(stringResource(string.beginDT_req)) },
             colors = OutlinedTextFieldDefaults.colors(
@@ -230,7 +226,7 @@ fun ScheduleInputForm(
             singleLine = false,
             modifier = Modifier
                 .fillMaxWidth()
-                .pointerInput(beginDTMillis) {
+                .pointerInput(beginDT) {
                     awaitEachGesture {
                         // Modifier.clickable doesn't work for text fields, so we use Modifier.pointerInput
                         // in the Initial pass to observe events before the text field consumes them
@@ -241,20 +237,20 @@ fun ScheduleInputForm(
                             showBeginDTPicker = true
                         }
                     }
-                },
+                }
         )
         if (showBeginDTPicker) {
-            DateTimePickerDialog(
+            DateTimePickerDialogLDT(
                 onDismiss = { showBeginDTPicker = false },
-                onConfirm = { begin, _ ->
-                    onValueChange(schedule.copy(beginDT = begin))
+                onConfirm = { begin: LocalDateTime?, _: LocalDateTime? ->
+                    onValueChange(nife.copy(beginDT = begin))
                     showBeginDTPicker = false
                 },
             )
         }
-
+        // EndDT
         OutlinedTextField(
-            value = schedule.endDT?.toFriendlyString() ?: "",
+            value = nife.endDT?.toFriendlyString() ?: "",
             onValueChange = { },
             label = { Text(stringResource(string.endDT_req)) },
             colors = OutlinedTextFieldDefaults.colors(
@@ -265,7 +261,7 @@ fun ScheduleInputForm(
             singleLine = false,
             modifier = Modifier
                 .fillMaxWidth()
-                .pointerInput(endDTMillis) {
+                .pointerInput(endDT) {
                     awaitEachGesture {
                         // Modifier.clickable doesn't work for text fields, so we use Modifier.pointerInput
                         // in the Initial pass to observe events before the text field consumes them
@@ -276,13 +272,13 @@ fun ScheduleInputForm(
                             showEndDTPicker = true
                         }
                     }
-                },
+                }
         )
         if (showEndDTPicker) {
-            DateTimePickerDialog(
+            DateTimePickerDialogLDT(
                 onDismiss = { showEndDTPicker = false },
-                onConfirm = { end, _ ->
-                    onValueChange(schedule.copy(endDT = end))
+                onConfirm = { end: LocalDateTime?, _: LocalDateTime? ->
+                    onValueChange(nife.copy(endDT = end))
                     showEndDTPicker = false
                 },
             )
@@ -291,44 +287,32 @@ fun ScheduleInputForm(
         // TODO: interval
 
         // description
-        Log.d("EditScreen", "initialValue: ${schedule.description}")
         OutlinedTextField(
-            value = schedule.description ?: "",
-            onValueChange = { onValueChange(schedule.copy(description = it)) },
+            value = nife.description,
+            onValueChange = { onValueChange(nife.copy(description = it)) },
             label = { Text(stringResource(string.description_req)) },
+            modifier = Modifier.fillMaxWidth(),
             colors = OutlinedTextFieldDefaults.colors(
                 focusedContainerColor = MaterialTheme.colorScheme.secondaryContainer,
                 unfocusedContainerColor = MaterialTheme.colorScheme.secondaryContainer,
                 disabledContainerColor = MaterialTheme.colorScheme.secondaryContainer,
             ),
-            modifier = Modifier.fillMaxWidth(),
             singleLine = false
         )
 
-        // TODO: location
-        Log.d("EditScreen", "initialValue: ${schedule.location}")
+        // TODO: location with GPS
         OutlinedTextField(
-            value = schedule.location ?: "",
-            onValueChange = { onValueChange(schedule.copy(location = it)) },
+            value = nife.location,
+            onValueChange = { onValueChange(nife.copy(location = it)) },
             label = { Text(stringResource(string.location_req)) },
+            modifier = Modifier.fillMaxWidth(),
             colors = OutlinedTextFieldDefaults.colors(
                 focusedContainerColor = MaterialTheme.colorScheme.secondaryContainer,
                 unfocusedContainerColor = MaterialTheme.colorScheme.secondaryContainer,
                 disabledContainerColor = MaterialTheme.colorScheme.secondaryContainer,
             ),
-            modifier = Modifier.fillMaxWidth(),
-            singleLine = false
+            singleLine = true
         )
-
-
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun AddScheduleScreenPreview() {
-    BlueSimpleTheme {
-        ScheduleInputForm(Schedule(), {}, {})
     }
 
 }

@@ -7,17 +7,17 @@ import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import myapp.chronify.data.PreferencesRepository
 import myapp.chronify.data.nife.Nife
 import myapp.chronify.data.nife.NifeRepository
 
-data class NifeListUiState(val nifeList: PagingData<Nife> = PagingData.empty())
+// 枚举类表示筛选状态
+enum class ListFilter {
+    UNFINISHED, FINISHED, ALL
+}
 
 class MarkerViewModel(
     private val repository: NifeRepository,
@@ -25,7 +25,7 @@ class MarkerViewModel(
 ) : ViewModel() {
 
     // 添加当前筛选状态
-    private val _currentFilter = MutableStateFlow(ScheduleFilter.UNFINISHED)
+    private val _currentFilter = MutableStateFlow(ListFilter.UNFINISHED)
     val currentFilter = _currentFilter.asStateFlow()
 
     /**
@@ -39,15 +39,15 @@ class MarkerViewModel(
             currentFilter
         ) { unfinished, finished, all, filter ->
             when (filter) {
-                ScheduleFilter.UNFINISHED -> unfinished
-                ScheduleFilter.FINISHED -> finished
-                ScheduleFilter.ALL -> all
+                ListFilter.UNFINISHED -> unfinished
+                ListFilter.FINISHED -> finished
+                ListFilter.ALL -> all
             }
         }
 
 
     // 添加更新筛选状态的方法
-    fun updateFilter(filter: ScheduleFilter) {
+    fun updateFilter(filter: ListFilter) {
         _currentFilter.value = filter
     }
 

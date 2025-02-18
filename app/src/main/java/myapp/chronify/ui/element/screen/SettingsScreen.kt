@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Switch
-import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -16,13 +15,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.viewmodel.compose.viewModel
-import kotlinx.coroutines.flow.toSet
 import kotlinx.coroutines.launch
 import myapp.chronify.R.string
 import myapp.chronify.data.PreferencesKey
-import myapp.chronify.ui.element.AppTopBar
+import myapp.chronify.ui.element.component.AppTopBar
 import myapp.chronify.ui.viewmodel.AppViewModelProvider
-import myapp.chronify.ui.viewmodel.SettingsUiState
 import myapp.chronify.ui.viewmodel.SettingsViewModel
 
 object SettingsScreenRoute : NavigationRoute {

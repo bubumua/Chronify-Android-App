@@ -11,6 +11,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.AssistChipDefaults
 import androidx.compose.material3.Checkbox
@@ -18,6 +20,8 @@ import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.InputChip
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
@@ -54,15 +58,18 @@ import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.viewmodel.compose.viewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import myapp.chronify.R
 import myapp.chronify.R.string
 import myapp.chronify.R.dimen
-import myapp.chronify.data.nife.Nife
 import myapp.chronify.data.nife.NifeType
 import myapp.chronify.data.nife.getIcon
 import myapp.chronify.data.nife.getLocalizedName
+import myapp.chronify.ui.components.TimePolymer
+import myapp.chronify.ui.element.component.DateRange
+import myapp.chronify.ui.element.component.SimpleDateRangePicker
 import myapp.chronify.ui.element.screen.NifeDTText
-import myapp.chronify.ui.viewmodel.AddNifeViewModel
 import myapp.chronify.ui.viewmodel.AppViewModelProvider
+import myapp.chronify.ui.viewmodel.NifeAddViewModel
 import myapp.chronify.utils.toLocalTime
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -84,7 +91,7 @@ fun AddNifeBottomSheet(
 
 @Composable
 fun AddNifeBottomSheetContent(
-    viewModel: AddNifeViewModel = viewModel(factory = AppViewModelProvider.Factory),
+    viewModel: NifeAddViewModel = viewModel(factory = AppViewModelProvider.Factory),
     onDismissRequest: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -104,9 +111,7 @@ fun AddNifeBottomSheetContent(
                 enabled = uiState.isValid,
                 onClick = {
                     coroutineScope.launch {
-                        viewModel.saveNife()
-                        // TODO: according to the preference, whether to clear the uiState after saving
-                        viewModel.updateUiState(nife = Nife(title = ""))
+                        viewModel.save()
                     }
                     onDismissRequest()
                 },
@@ -122,7 +127,7 @@ fun AddNifeBottomSheetContent(
             verticalAlignment = Alignment.CenterVertically
         ) {
             AutoFocusedOutlineTextField(
-                onValueChange = {text->
+                onValueChange = { text ->
                     viewModel.updateUiState(uiState.nife.copy(title = text))
                 },
                 modifier = Modifier.weight(1f),
@@ -134,7 +139,7 @@ fun AddNifeBottomSheetContent(
                     viewModel.updateUiState(
                         uiState.nife.copy(
                             isFinished = it,
-                            endDT = LocalDateTime.now()
+                            endDT = if (it) LocalDateTime.now() else null
                         )
                     )
                 },
@@ -154,6 +159,10 @@ fun AddNifeBottomSheetContent(
                             isFinished = when (type) {
                                 NifeType.RECORD -> true
                                 else -> false
+                            },
+                            endDT = when (type) {
+                                NifeType.RECORD -> LocalDateTime.now()
+                                else -> uiState.nife.endDT
                             }
                         )
                     )
@@ -187,7 +196,7 @@ fun AddNifeBottomSheetContent(
     if (showDateTimePicker) {
         DateTimePickerDialogLDT(
             onDismiss = { showDateTimePicker = false },
-            onConfirm = { beginDT:LocalDateTime?, endDT:LocalDateTime? ->
+            onConfirm = { beginDT: LocalDateTime?, endDT: LocalDateTime? ->
                 viewModel.updateUiState(
                     uiState.nife.copy(
                         beginDT = beginDT,
@@ -246,11 +255,11 @@ private fun AutoFocusedOutlineTextField(
 fun NifeTypeDropdownChip(
     initialType: NifeType,
     onSelect: (NifeType) -> Unit,
-    modifier: Modifier=Modifier
+    modifier: Modifier = Modifier
 ) {
     var expanded by remember { mutableStateOf(false) }
     var selectedType by remember { mutableStateOf(initialType) }
-    val types= NifeType.entries
+    val types = NifeType.entries
 
     Box(
         modifier = modifier
@@ -288,6 +297,44 @@ fun NifeTypeDropdownChip(
             }
         }
     }
+}
+
+@Composable
+fun DateTimeChip(
+    label: @Composable () -> Unit,
+    isSelected: Boolean = false,
+    onClick: () -> Unit = {},
+    onClose: () -> Unit = {},
+    enabled: Boolean = true,
+    modifier: Modifier = Modifier
+) {
+    InputChip(
+        selected = isSelected,
+        onClick = onClick,
+        label = label,
+        modifier = modifier,
+        enabled = enabled,
+        leadingIcon = {
+            Icon(
+                painterResource(R.drawable.calendar_add_on_24px),
+                contentDescription = stringResource(string.date_time_picker_label),
+                Modifier.size(AssistChipDefaults.IconSize)
+            )
+        },
+        trailingIcon = {
+            if (isSelected)
+                IconButton(
+                    onClick = onClose,
+                    modifier = Modifier.size(AssistChipDefaults.IconSize)
+                ) {
+                    Icon(
+                        Icons.Default.Close,
+                        contentDescription = stringResource(string.clear_date_time),
+                        Modifier.size(AssistChipDefaults.IconSize)
+                    )
+                }
+        }
+    )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -400,6 +447,6 @@ fun DateTimePickerDialogLDT(
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
-fun merge_LD_TPS(date: LocalDate, timeState: TimePickerState):LocalDateTime{
+fun merge_LD_TPS(date: LocalDate, timeState: TimePickerState): LocalDateTime {
     return LocalDateTime.of(date, timeState.toLocalTime())
 }

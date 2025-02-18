@@ -73,19 +73,19 @@ fun LocalDateTime.toFriendlyString(): String {
 
     return when {
         this.toLocalDate() == now.minusDays(2).toLocalDate() ->
-            "${stringResource(string.ereyesterday)} ${this.toLocalTime()}"
+            "${stringResource(string.ereyesterday)} ${this.format(DateTimeFormatter.ofPattern("HH:mm"))}"
 
         this.toLocalDate() == now.minusDays(1).toLocalDate() ->
-            "${stringResource(string.yesterday)} ${this.toLocalTime()}"
+            "${stringResource(string.yesterday)} ${this.format(DateTimeFormatter.ofPattern("HH:mm"))}"
 
         this.toLocalDate() == now.toLocalDate() ->
-            "${stringResource(string.today)} ${this.toLocalTime()}"
+            "${stringResource(string.today)} ${this.format(DateTimeFormatter.ofPattern("HH:mm"))}"
 
         this.toLocalDate() == now.plusDays(1).toLocalDate() ->
-            "${stringResource(string.tomorrow)} ${this.toLocalTime()}"
+            "${stringResource(string.tomorrow)} ${this.format(DateTimeFormatter.ofPattern("HH:mm"))}"
 
         this.toLocalDate() == now.plusDays(2).toLocalDate() ->
-            "${stringResource(string.overmorrow)} ${this.toLocalTime()}"
+            "${stringResource(string.overmorrow)} ${this.format(DateTimeFormatter.ofPattern("HH:mm"))}"
 
         this.year == now.year ->
             this.format(DateTimeFormatter.ofPattern("MM-dd HH:mm"))

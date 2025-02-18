@@ -8,6 +8,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import myapp.chronify.data.PreferencesKey
 import myapp.chronify.data.PreferencesRepository
+import myapp.chronify.data.nife.NifeRepository
 import myapp.chronify.data.schedule.ScheduleRepository
 
 class SettingsUiState(
@@ -16,7 +17,7 @@ class SettingsUiState(
 )
 
 class SettingsViewModel(
-    private val scheduleRepository: ScheduleRepository,
+    private val repository: NifeRepository,
     private val preferencesRepository: PreferencesRepository
 ) : ViewModel() {
 
