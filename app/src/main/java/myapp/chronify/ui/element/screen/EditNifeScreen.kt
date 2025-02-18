@@ -203,7 +203,7 @@ fun NifeInputForm(
                         )
                     )
                 },
-                modifier = Modifier.weight(1f, true)
+                modifier = Modifier
             )
         }
 

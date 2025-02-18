@@ -42,6 +42,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -53,6 +54,7 @@ import kotlinx.coroutines.launch
 import myapp.chronify.R.dimen
 import myapp.chronify.R.string
 import myapp.chronify.data.nife.Nife
+import myapp.chronify.data.nife.NifeType
 import myapp.chronify.ui.element.AddNifeBottomSheet
 import myapp.chronify.ui.element.components.AppTopBar
 import myapp.chronify.ui.element.exp.SwipeableListItem
@@ -156,11 +158,11 @@ fun MarkerScreenContent(
         // 加载状态
         when {
             lazyItems.loadState.refresh is LoadState.Loading -> {
-                 Text("Loading...")
+                Text("Loading...")
             }
 
             lazyItems.loadState.append is LoadState.Loading -> {
-              Text("Loading more...")
+                Text("Loading more...")
             }
 
             lazyItems.loadState.refresh is LoadState.Error -> {
@@ -323,12 +325,24 @@ private fun NifeCard(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Column {
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(end = dimensionResource(dimen.padding_small))
+            ) {
                 // title
-                Text(text = item.title, style = MaterialTheme.typography.titleLarge)
+                Text(
+                    text = item.title,
+                    maxLines = 2,   // 限制最大行数
+                    overflow = TextOverflow.Ellipsis, // 超出部分显示省略号
+                    style = MaterialTheme.typography.titleLarge
+                )
                 // beginDT or endDT
                 if (item.beginDT != null || item.endDT != null) {
-                    NifeDTText(nife = item, ifRenderOutdated = !item.isFinished)
+                    NifeDTText(
+                        nife = item,
+                        ifRenderOutdated = item.type == NifeType.REMINDER && !item.isFinished
+                    )
                 }
             }
             Row(
