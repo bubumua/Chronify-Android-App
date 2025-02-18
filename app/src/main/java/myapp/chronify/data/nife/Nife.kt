@@ -8,10 +8,8 @@ import androidx.room.TypeConverter
 import java.time.LocalDateTime
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
-import myapp.chronify.R
 import myapp.chronify.R.string
-import myapp.chronify.datamodel.ScheduleType
-import myapp.chronify.datamodel.getIcon
+import myapp.chronify.R.drawable
 import java.time.ZoneId
 
 
@@ -76,11 +74,11 @@ fun NifeType.getLocalizedName(): String {
 
 fun NifeType.getIcon(): Int {
     return when (this) {
-        NifeType.RECORD -> R.drawable.event_available_24px
-        NifeType.DEFAULT -> R.drawable.calendar_add_on_24px
-        NifeType.REMINDER -> R.drawable.event_note_24px
-        NifeType.CYCLICAL -> R.drawable.event_repeat_24dp_e8eaed_fill0_wght400_grad0_opsz24
-        else -> R.drawable.event_note_24px
+        NifeType.RECORD -> drawable.event_available_24px
+        NifeType.DEFAULT -> drawable.calendar_add_on_24px
+        NifeType.REMINDER -> drawable.event_note_24px
+        NifeType.CYCLICAL -> drawable.event_repeat_24dp_e8eaed_fill0_wght400_grad0_opsz24
+        else -> drawable.event_note_24px
     }
 }
 

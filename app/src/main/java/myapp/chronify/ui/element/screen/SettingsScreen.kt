@@ -18,7 +18,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import kotlinx.coroutines.launch
 import myapp.chronify.R.string
 import myapp.chronify.data.PreferencesKey
-import myapp.chronify.ui.element.component.AppTopBar
+import myapp.chronify.ui.element.components.AppTopBar
 import myapp.chronify.ui.viewmodel.AppViewModelProvider
 import myapp.chronify.ui.viewmodel.SettingsViewModel
 

@@ -54,7 +54,7 @@ import myapp.chronify.R.dimen
 import myapp.chronify.R.string
 import myapp.chronify.data.nife.Nife
 import myapp.chronify.ui.element.AddNifeBottomSheet
-import myapp.chronify.ui.element.component.AppTopBar
+import myapp.chronify.ui.element.components.AppTopBar
 import myapp.chronify.ui.element.exp.SwipeableListItem
 import myapp.chronify.ui.navigation.NavigationRoute
 import myapp.chronify.ui.viewmodel.AppViewModelProvider

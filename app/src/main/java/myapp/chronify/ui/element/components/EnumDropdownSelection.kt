@@ -1,4 +1,4 @@
-package myapp.chronify.ui.element.component
+package myapp.chronify.ui.element.components
 
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.DropdownMenuItem
@@ -15,7 +15,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import myapp.chronify.datamodel.ScheduleType
+import myapp.chronify.data.nife.NifeType
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -79,7 +79,7 @@ inline fun <reified T : Enum<T>> EnumDropdown(
 fun EnumDropdown2Preview() {
     EnumDropdown(
         label = "Type",
-        initialValue = ScheduleType.DEFAULT,
+        initialValue = NifeType.DEFAULT,
         onValueSelected = {}
     )
 }

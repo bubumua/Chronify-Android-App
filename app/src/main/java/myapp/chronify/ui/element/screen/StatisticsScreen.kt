@@ -46,7 +46,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import myapp.chronify.R.string
 import myapp.chronify.R.dimen
 import myapp.chronify.data.schedule.ScheduleEntity
-import myapp.chronify.ui.element.component.AppTopBar
+import myapp.chronify.ui.element.components.AppTopBar
 import myapp.chronify.ui.navigation.NavigationRoute
 import myapp.chronify.ui.viewmodel.AppViewModelProvider
 import myapp.chronify.ui.viewmodel.StatisticsViewModel

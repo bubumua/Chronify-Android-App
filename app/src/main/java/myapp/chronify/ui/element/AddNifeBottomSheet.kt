@@ -64,9 +64,9 @@ import myapp.chronify.R.dimen
 import myapp.chronify.data.nife.NifeType
 import myapp.chronify.data.nife.getIcon
 import myapp.chronify.data.nife.getLocalizedName
-import myapp.chronify.ui.components.TimePolymer
-import myapp.chronify.ui.element.component.DateRange
-import myapp.chronify.ui.element.component.SimpleDateRangePicker
+import myapp.chronify.ui.element.components.TimePolymer
+import myapp.chronify.ui.element.components.DateRange
+import myapp.chronify.ui.element.components.SimpleDateRangePicker
 import myapp.chronify.ui.element.screen.NifeDTText
 import myapp.chronify.ui.viewmodel.AppViewModelProvider
 import myapp.chronify.ui.viewmodel.NifeAddViewModel

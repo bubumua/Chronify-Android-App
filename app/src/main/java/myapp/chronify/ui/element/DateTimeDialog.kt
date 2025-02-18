@@ -29,9 +29,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import myapp.chronify.R.string
-import myapp.chronify.ui.components.TimePolymer
-import myapp.chronify.ui.element.component.DateRange
-import myapp.chronify.ui.element.component.SimpleDateRangePicker
+import myapp.chronify.ui.element.components.TimePolymer
+import myapp.chronify.ui.element.components.DateRange
+import myapp.chronify.ui.element.components.SimpleDateRangePicker
 import myapp.chronify.utils.combineDateTimeState
 import java.util.Calendar
 

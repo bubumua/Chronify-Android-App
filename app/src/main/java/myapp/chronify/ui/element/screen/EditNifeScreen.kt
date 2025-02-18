@@ -46,9 +46,9 @@ import myapp.chronify.R.dimen
 import myapp.chronify.R.string
 import myapp.chronify.data.nife.Nife
 import myapp.chronify.data.nife.NifeType
-import myapp.chronify.ui.element.component.AppTopBar
+import myapp.chronify.ui.element.components.AppTopBar
 import myapp.chronify.ui.element.DateTimePickerDialogLDT
-import myapp.chronify.ui.element.component.EnumDropdown
+import myapp.chronify.ui.element.components.EnumDropdown
 import myapp.chronify.ui.navigation.NavigationRoute
 import myapp.chronify.ui.viewmodel.AppViewModelProvider
 import myapp.chronify.ui.viewmodel.NifeEditViewModel
