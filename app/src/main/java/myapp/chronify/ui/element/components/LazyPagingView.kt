@@ -29,10 +29,14 @@ fun <T : Any> LazyPagingView(
     ) {
         when {
             lazyItems.loadState.refresh is LoadState.Loading -> refreshLoadingContent()
-            lazyItems.loadState.append is LoadState.Loading -> appendLoadingContent()
             lazyItems.loadState.refresh is LoadState.Error -> errorContent()
             else -> {
                 content()
+                when (lazyItems.loadState.append) {
+                    is LoadState.Loading -> appendLoadingContent()
+                    is LoadState.Error -> errorContent()
+                    else -> Unit
+                }
             }
         }
     }

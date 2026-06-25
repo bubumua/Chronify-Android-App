@@ -11,13 +11,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.DateRange
-import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -25,9 +20,7 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -41,10 +34,8 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
-import kotlinx.coroutines.flow.first
 import myapp.chronify.R.dimen
 import myapp.chronify.R.string
-import myapp.chronify.data.nife.MonthCount
 import myapp.chronify.data.nife.Nife
 import myapp.chronify.ui.element.ScrollableEventCalendar
 import myapp.chronify.ui.element.ScrollableHistogram
@@ -54,10 +45,7 @@ import myapp.chronify.ui.element.components.OutLinedTextFieldWithSuggestion
 import myapp.chronify.ui.navigation.NavigationRoute
 import myapp.chronify.ui.viewmodel.AppViewModelProvider
 import myapp.chronify.ui.viewmodel.StatisticsViewModel
-import java.text.SimpleDateFormat
 import java.time.LocalDate
-import java.util.Calendar
-import java.util.Locale
 
 object StatisticsScreenRoute : NavigationRoute {
     override val route = "statistics"
@@ -73,8 +61,10 @@ fun StatisticsScreen(
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
     val uiState by viewModel.uiState.collectAsState()
     val lazyItems = viewModel.nifesPagingData.collectAsLazyPagingItems()
-    // val dateEventMap by viewModel.dateEventMap.collectAsState()
-    var isCalendarView by remember { mutableStateOf(true) }
+    val itemSnapshotList = lazyItems.itemSnapshotList
+    val dateEventMap = remember(itemSnapshotList) {
+        viewModel.convertToDateEventMap(itemSnapshotList.items)
+    }
 
     Scaffold(
         modifier = modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
@@ -88,8 +78,21 @@ fun StatisticsScreen(
         StatisticsContent(
             uiState = uiState,
             lazyItems = lazyItems,
-            convertToMap = { viewModel.convertToDateEventMap(it) },
+            dateEventMap = dateEventMap,
             onSearchQueryChange = { viewModel.onSearchQueryChange(it) },
+            onLoadMoreEvents = {
+                val appendState = lazyItems.loadState.append
+                val canRequestMore =
+                    lazyItems.itemCount > 0 &&
+                        lazyItems.loadState.refresh !is LoadState.Loading &&
+                        appendState !is LoadState.Loading &&
+                        appendState !is LoadState.Error &&
+                        (appendState as? LoadState.NotLoading)?.endOfPaginationReached != true
+
+                if (canRequestMore) {
+                    lazyItems[lazyItems.itemCount - 1]
+                }
+            },
             navigateToEdit = navigateToEdit,
             modifier = Modifier.fillMaxSize(),
             contentPadding = innerPadding
@@ -101,8 +104,9 @@ fun StatisticsScreen(
 fun StatisticsContent(
     uiState: StatisticsViewModel.StatisticsUiState,
     lazyItems: LazyPagingItems<Nife>,
-    convertToMap: (lazyItems: LazyPagingItems<Nife>) -> Map<LocalDate, List<Nife>>,
+    dateEventMap: Map<LocalDate, List<Nife>>,
     onSearchQueryChange: (String) -> Unit,
+    onLoadMoreEvents: () -> Unit,
     navigateToEdit: (Int) -> Unit,
     modifier: Modifier = Modifier,
     contentPadding: PaddingValues,
@@ -147,11 +151,17 @@ fun StatisticsContent(
 
         LazyPagingView(
             lazyItems = lazyItems,
+            appendLoadingContent = {
+                CircularProgressIndicator(
+                    modifier = Modifier.padding(dimensionResource(dimen.padding_small))
+                )
+            },
             modifier = Modifier.fillMaxWidth()
         ) {
             ScrollableEventCalendar(
-                markers = convertToMap(lazyItems),
+                markers = dateEventMap,
                 onMenuItemClick = { nife -> navigateToEdit(nife.id) },
+                onLoadMore = onLoadMoreEvents,
                 setActiveColor = { count ->
                     val max = 4
                     val ratio = (count.coerceAtMost(max).toFloat() / max).coerceIn(0f, 1f)

@@ -1,21 +1,19 @@
 package myapp.chronify.ui.element
 
 import android.graphics.Paint
-import android.util.Log
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -183,9 +181,6 @@ fun ScrollableHistogram(
 
     var selectedBar by remember { mutableStateOf<MonthCount?>(null) }
 
-    // 计算每个柱形需要的最小宽度(包括间距)
-    val totalWidthNeeded = (barWidth + barSpacing) * data.size
-
     val maxCount = data.maxOf { it.count }
     val averageCount = data.sumOf { it.count } / data.size
 
@@ -207,15 +202,16 @@ fun ScrollableHistogram(
                     .offset(y = barTextHeight + (barHeight * (1 - averageCount.toFloat() / maxCount)).roundToInt().dp)
                     .background(color = averageLineColor)
             ) {}
-            Row(
+            LazyRow(
                 verticalAlignment = Alignment.Bottom,
                 modifier = Modifier
-                    .horizontalScroll(rememberScrollState())
-                    .width(totalWidthNeeded)
                     .height(barTextHeight + barHeight.dp + barTextHeight)
                     .padding(horizontal = 16.dp)
             ) {
-                data.forEach { monthData ->
+                items(
+                    items = data,
+                    key = { it.month }
+                ) { monthData ->
                     Column(
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.Bottom,

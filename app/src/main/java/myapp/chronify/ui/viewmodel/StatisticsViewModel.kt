@@ -1,29 +1,22 @@
 package myapp.chronify.ui.viewmodel
 
-import androidx.compose.runtime.Composable
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
-import androidx.paging.compose.LazyPagingItems
-import androidx.paging.compose.collectAsLazyPagingItems
-import androidx.paging.map
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import myapp.chronify.data.PreferencesRepository
 import myapp.chronify.data.nife.MonthCount
 import myapp.chronify.data.nife.Nife
 import myapp.chronify.data.nife.NifeRepository
-import myapp.chronify.utils.daysUntil
 import java.time.LocalDate
 
 class StatisticsViewModel(
@@ -96,20 +89,14 @@ class StatisticsViewModel(
         _uiState.update { it.copy(isCalendarView = !it.isCalendarView) }
     }
 
-    fun convertToDateEventMap(lazyItems: LazyPagingItems<Nife>): Map<LocalDate, List<Nife>> {
-        val dateEventMap = mutableMapOf<LocalDate, MutableList<Nife>>()
-
-        // 遍历所有已加载的项目
-        for (index in 0 until lazyItems.itemCount) {
-            val nife = lazyItems[index] ?: continue
-
-            // 获取完成日期作为key
-            val date = nife.endDT?.toLocalDate() ?: continue
-
-            // 将事件添加到对应日期的列表中
-            dateEventMap.getOrPut(date) { mutableListOf() }.add(nife)
-        }
-
-        return dateEventMap
+    fun convertToDateEventMap(items: List<Nife>): Map<LocalDate, List<Nife>> {
+        return items
+            .mapNotNull { nife ->
+                nife.endDT?.toLocalDate()?.let { date -> date to nife }
+            }
+            .groupBy(
+                keySelector = { it.first },
+                valueTransform = { it.second }
+            )
     }
 }

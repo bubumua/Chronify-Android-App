@@ -24,8 +24,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -33,11 +34,12 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.distinctUntilChanged
 import myapp.chronify.data.nife.Nife
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.format.TextStyle
+import java.time.temporal.ChronoUnit
 import java.time.temporal.TemporalAdjusters
 import java.util.Locale
 
@@ -70,6 +72,7 @@ data class WeekRow(
 fun ScrollableEventCalendar(
     markers: Map<LocalDate, List<Nife>> = emptyMap(),
     onMenuItemClick: (Nife) -> Unit = {},
+    onLoadMore: () -> Unit = {},
     setActiveColor: (Int) -> Color = { count ->
         when (count) {
             0 -> Color.LightGray.copy(alpha = 0.4f)
@@ -99,7 +102,8 @@ fun ScrollableEventCalendar(
             loadRange = loadRange,
             startDate = startDate,
             weekRowHeight = weekRowHeight,
-            backwardExpend = backwardExpend
+            backwardExpend = backwardExpend,
+            onLoadMore = onLoadMore
         )
     }
 }
@@ -152,22 +156,23 @@ private fun WeekRows(
     startDate: LocalDate,
     weekRowHeight: Dp = 40.dp,
     backwardExpend: Boolean,
+    onLoadMore: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     // Keep track of loaded weeks using SnapshotStateList
-    val weekRows = remember {
+    val weekRows = remember(startDate, startFromSunday, visibleRange, loadRange) {
         mutableStateListOf<WeekRow>().apply {
-            addAll((-visibleRange + 2 until 1).map { index ->
+            addAll((-visibleRange - loadRange + 1..0).map { index ->
                 generateWeekRow(
                     date = startDate.plusWeeks(index.toLong()),
-                    startFromSunday = startFromSunday,
-                    markers = markers
+                    startFromSunday = startFromSunday
                 )
             })
         }
     }
-    val listState = rememberLazyListState()
-    val coroutineScope = rememberCoroutineScope()
+    val listState = rememberLazyListState(initialFirstVisibleItemIndex = loadRange)
+    val currentOnLoadMore by rememberUpdatedState(onLoadMore)
+    val oldestMarkerDate = markers.keys.minOrNull()
 
     LazyColumn(
         state = listState,
@@ -178,6 +183,7 @@ private fun WeekRows(
         items(weekRows.size) { index ->
             WeekRowItem(
                 weekRow = weekRows[index],
+                markers = markers,
                 weekRowHeight = weekRowHeight,
                 onMenuItemClick = onMenuItemClick,
                 setActiveColor = setActiveColor
@@ -185,44 +191,73 @@ private fun WeekRows(
         }
     }
 
-    // Auto load previous/future weeks when scrolling
-    LaunchedEffect(listState.isScrollInProgress) {
-        // Load previous weeks when scrolling up
-        if (listState.firstVisibleItemIndex == 0) {
-            // 批量生成前几周的数据
-            val previousWeeks = (-loadRange + 1 until 1).map { offset ->
+    LaunchedEffect(oldestMarkerDate, startFromSunday) {
+        val targetDate = oldestMarkerDate ?: return@LaunchedEffect
+        val firstLoadedDate =
+            weekRows.firstOrNull()?.days?.firstOrNull()?.date ?: return@LaunchedEffect
+        val targetWeekStart = targetDate.weekStart(startFromSunday)
+        val firstLoadedWeekStart = firstLoadedDate.weekStart(startFromSunday)
+        val weeksToPrepend =
+            ChronoUnit.WEEKS.between(targetWeekStart, firstLoadedWeekStart).toInt()
+
+        if (weeksToPrepend > 0) {
+            val previousWeeks = (weeksToPrepend downTo 1).map { offset ->
                 generateWeekRow(
-                    date = startDate.plusWeeks((-weekRows.size + offset).toLong()),
-                    startFromSunday = startFromSunday,
-                    markers = markers
+                    date = firstLoadedWeekStart.minusWeeks(offset.toLong()),
+                    startFromSunday = startFromSunday
                 )
             }
+            val firstVisibleIndex = listState.firstVisibleItemIndex
             weekRows.addAll(0, previousWeeks)
-
-            // 保持滚动位置
-            coroutineScope.launch {
-                listState.scrollToItem(loadRange)
-            }
+            listState.scrollToItem(firstVisibleIndex + previousWeeks.size)
         }
+    }
 
-        // Load future weeks when scrolling down
-        if (backwardExpend) {
-            if (listState.firstVisibleItemIndex == weekRows.size - visibleRange) {
-                // 批量生成后几周的数据
-                val futureWeeks = (1..loadRange).map { offset ->
-                    generateWeekRow(
-                        date = startDate.plusWeeks(weekRows.size.toLong() + offset),
-                        startFromSunday = startFromSunday,
-                        markers = markers
-                    )
+    // Auto load previous/future weeks when scrolling
+    LaunchedEffect(listState, startDate, startFromSunday, loadRange, backwardExpend) {
+        var hasUserScrolled = false
+
+        snapshotFlow {
+            val firstVisibleIndex = listState.firstVisibleItemIndex
+            val lastVisibleIndex =
+                listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: firstVisibleIndex
+            Triple(firstVisibleIndex, lastVisibleIndex, listState.isScrollInProgress)
+        }
+            .distinctUntilChanged()
+            .collect { (firstVisibleIndex, lastVisibleIndex, isScrollInProgress) ->
+                if (isScrollInProgress) {
+                    hasUserScrolled = true
                 }
-                weekRows.addAll(futureWeeks)
+                if (!hasUserScrolled) return@collect
 
-                coroutineScope.launch {
-                    listState.animateScrollToItem(listState.firstVisibleItemIndex + 1)
+                // Load previous weeks only after the user actually scrolls to the top edge.
+                if (firstVisibleIndex == 0) {
+                    val firstLoadedDate =
+                        weekRows.firstOrNull()?.days?.firstOrNull()?.date ?: startDate
+                    val previousWeeks = (loadRange downTo 1).map { offset ->
+                        generateWeekRow(
+                            date = firstLoadedDate.minusWeeks(offset.toLong()),
+                            startFromSunday = startFromSunday
+                        )
+                    }
+                    weekRows.addAll(0, previousWeeks)
+                    listState.scrollToItem(firstVisibleIndex + previousWeeks.size)
+                    currentOnLoadMore()
+                }
+
+                // Load future weeks when scrolling down if this mode is enabled.
+                if (backwardExpend && lastVisibleIndex >= weekRows.lastIndex) {
+                    val lastLoadedDate =
+                        weekRows.lastOrNull()?.days?.firstOrNull()?.date ?: startDate
+                    val futureWeeks = (1..loadRange).map { offset ->
+                        generateWeekRow(
+                            date = lastLoadedDate.plusWeeks(offset.toLong()),
+                            startFromSunday = startFromSunday
+                        )
+                    }
+                    weekRows.addAll(futureWeeks)
                 }
             }
-        }
     }
 
 }
@@ -231,6 +266,7 @@ private fun WeekRows(
 @Composable
 private fun WeekRowItem(
     weekRow: WeekRow,
+    markers: Map<LocalDate, List<Nife>>,
     weekRowHeight: Dp,
     onMenuItemClick: (Nife) -> Unit,
     setActiveColor: (Int) -> Color,
@@ -249,7 +285,7 @@ private fun WeekRowItem(
         )
         weekRow.days.forEach { dayCell ->
             DayCellItem(
-                dayCell = dayCell,
+                dayCell = dayCell.copy(events = markers[dayCell.date] ?: emptyList()),
                 weekRowHeight = weekRowHeight,
                 onMenuItemClick = onMenuItemClick,
                 setActiveColor = setActiveColor,
@@ -321,17 +357,19 @@ private fun DayCellItem(
 
 }
 
+private fun LocalDate.weekStart(startFromSunday: Boolean): LocalDate {
+    val firstDayOfWeek = if (startFromSunday) DayOfWeek.SUNDAY else DayOfWeek.MONDAY
+    return with(TemporalAdjusters.previousOrSame(firstDayOfWeek))
+}
+
 private fun generateWeekRow(
     date: LocalDate,
     startFromSunday: Boolean,
     markers: Map<LocalDate, List<Nife>> = emptyMap()
 ): WeekRow {
 
-    // 确定周的起始日
-    val firstDayOfWeek = if (startFromSunday) DayOfWeek.SUNDAY else DayOfWeek.MONDAY
-
     // 找到本周的第一个日期（包含或早于目标日期的第一个起始日）
-    val firstDate = date.with(TemporalAdjusters.previousOrSame(firstDayOfWeek))
+    val firstDate = date.weekStart(startFromSunday)
 
     // 生成连续的7天日期
     val week = (0..6).map { offset ->
