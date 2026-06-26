@@ -4,6 +4,7 @@ import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import kotlinx.coroutines.flow.Flow
+import java.time.LocalDateTime
 
 class NifeRepository(private val dao: NifeDao) {
 
@@ -113,6 +114,18 @@ class NifeRepository(private val dao: NifeDao) {
 
     fun getMonthCount(title: String): Flow<List<MonthCount>> {
         return dao.countByTitleGroupedByMonth(title)
+    }
+
+    fun getFinishedNifesByEndDateRange(
+        title: String,
+        startInclusive: LocalDateTime,
+        endExclusive: LocalDateTime
+    ): Flow<List<Nife>> {
+        return dao.getFinishedNifesByEndDateRange(title, startInclusive, endExclusive)
+    }
+
+    fun getOldestFinishedEndDate(title: String): Flow<LocalDateTime?> {
+        return dao.getOldestFinishedEndDate(title)
     }
 
 }

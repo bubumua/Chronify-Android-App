@@ -8,6 +8,7 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
 import kotlinx.coroutines.flow.Flow
+import java.time.LocalDateTime
 
 data class MonthCount(
     val month: String, // 格式：YYYY-MM
@@ -59,6 +60,35 @@ interface NifeDao {
 
     @Query("SELECT * FROM Nife WHERE isFinished = 1 ORDER BY endDT DESC")
     fun getFinishedNifesForAllAsPgSrc(): PagingSource<Int, Nife>
+
+    @Query(
+        """
+        SELECT *
+        FROM Nife
+        WHERE isFinished = 1
+            AND endDT IS NOT NULL
+            AND endDT >= :startInclusive
+            AND endDT < :endExclusive
+            AND (:title = '' OR title = :title)
+        ORDER BY endDT DESC
+    """
+    )
+    fun getFinishedNifesByEndDateRange(
+        title: String,
+        startInclusive: LocalDateTime,
+        endExclusive: LocalDateTime
+    ): Flow<List<Nife>>
+
+    @Query(
+        """
+        SELECT MIN(endDT)
+        FROM Nife
+        WHERE isFinished = 1
+            AND endDT IS NOT NULL
+            AND (:title = '' OR title = :title)
+    """
+    )
+    fun getOldestFinishedEndDate(title: String): Flow<LocalDateTime?>
 
     // 按完成月份统计指定 title 的出现次数
     @Query("""

@@ -2,15 +2,11 @@ package myapp.chronify.ui.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.paging.PagingData
-import androidx.paging.cachedIn
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import myapp.chronify.data.PreferencesRepository
@@ -33,6 +29,7 @@ class StatisticsViewModel(
         val searchQuery: String = "",
         val suggestions: List<String> = emptyList(),
         val dateEventMap: Map<LocalDate, List<Nife>> = emptyMap(),
+        val oldestEventDate: LocalDate? = null,
         val timeRange: TimeRange = TimeRange.MONTH,
         val monthCount: List<MonthCount> = emptyList(),
         val isCalendarView: Boolean = true,
@@ -45,20 +42,32 @@ class StatisticsViewModel(
 
     private val _searchQuery = MutableStateFlow("")
     val searchQuery: StateFlow<String> = _searchQuery.asStateFlow()
+    private var calendarLoadJob: Job? = null
+    private var oldestDateLoadJob: Job? = null
+    private var calendarStartDate: LocalDate? = null
+    private var calendarEndExclusiveDate: LocalDate? = null
 
-    // 动态响应的 PagingData
-    @OptIn(ExperimentalCoroutinesApi::class)
-    val nifesPagingData: Flow<PagingData<Nife>> = searchQuery
-        .flatMapLatest { query ->
-            repository.getFinishedNifesByTitleAsPgFlow(query)
-        }
-        .cachedIn(viewModelScope)
+    init {
+        reloadOldestEventDate("")
+    }
 
     // 处理搜索框输入
     fun onSearchQueryChange(query: String) {
         viewModelScope.launch {
-            _uiState.update { it.copy(searchQuery = query) }
+            calendarLoadJob?.cancel()
+            calendarStartDate = null
+            calendarEndExclusiveDate = null
+            _uiState.update {
+                it.copy(
+                    searchQuery = query,
+                    dateEventMap = emptyMap(),
+                    oldestEventDate = null,
+                    isLoading = true,
+                    error = null
+                )
+            }
             _searchQuery.value = query // 更新 StateFlow
+            reloadOldestEventDate(query)
             if (query.isNotBlank()) {
                 // 获取标题建议
                 val suggestions = repository.getSimilarTitles(query).first()
@@ -79,7 +88,6 @@ class StatisticsViewModel(
                     )
                 }
             }
-            // update month count
 
         }
     }
@@ -98,5 +106,56 @@ class StatisticsViewModel(
                 keySelector = { it.first },
                 valueTransform = { it.second }
             )
+    }
+
+    fun onCalendarDateRangeChange(startDate: LocalDate, endDate: LocalDate) {
+        val normalizedStart = startDate
+        val normalizedEndExclusive = endDate.plusDays(1)
+
+        if (
+            calendarStartDate == normalizedStart &&
+            calendarEndExclusiveDate == normalizedEndExclusive
+        ) {
+            return
+        }
+
+        calendarStartDate = normalizedStart
+        calendarEndExclusiveDate = normalizedEndExclusive
+
+        reloadCalendarEvents()
+    }
+
+    private fun reloadCalendarEvents() {
+        val startDate = calendarStartDate ?: return
+        val endExclusiveDate = calendarEndExclusiveDate ?: return
+        val query = _searchQuery.value
+
+        calendarLoadJob?.cancel()
+        calendarLoadJob = viewModelScope.launch {
+            repository.getFinishedNifesByEndDateRange(
+                title = query,
+                startInclusive = startDate.atStartOfDay(),
+                endExclusive = endExclusiveDate.atStartOfDay()
+            ).collect { nifes ->
+                _uiState.update {
+                    it.copy(
+                        dateEventMap = convertToDateEventMap(nifes),
+                        isLoading = false,
+                        error = null
+                    )
+                }
+            }
+        }
+    }
+
+    private fun reloadOldestEventDate(query: String) {
+        oldestDateLoadJob?.cancel()
+        oldestDateLoadJob = viewModelScope.launch {
+            repository.getOldestFinishedEndDate(query).collect { oldestDateTime ->
+                _uiState.update {
+                    it.copy(oldestEventDate = oldestDateTime?.toLocalDate())
+                }
+            }
+        }
     }
 }

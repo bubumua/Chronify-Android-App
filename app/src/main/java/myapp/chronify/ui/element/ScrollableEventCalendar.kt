@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
@@ -35,6 +36,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.filterNotNull
 import myapp.chronify.data.nife.Nife
 import java.time.DayOfWeek
 import java.time.LocalDate
@@ -55,11 +57,25 @@ data class WeekRow(
     val monthName: String = "",
 )
 
+private data class CalendarScrollPosition(
+    val firstVisibleIndex: Int,
+    val firstVisibleOffset: Int,
+    val lastVisibleIndex: Int,
+)
+
+private data class CalendarDateRange(
+    val startDate: LocalDate,
+    val endDate: LocalDate,
+)
+
 /**
- * A calendar view that .
+ * A vertically scrollable event calendar.
  *
  * @param markers A map of dates to events.
  * @param onMenuItemClick A callback when a menu item is clicked.
+ * @param onLoadMore A legacy callback when the calendar reaches the older-date edge.
+ * @param onDateRangeChange A callback when the rendered calendar date range changes.
+ * @param oldestDate The oldest date that should be reachable when scrolling upward.
  * @param setActiveColor A function to set the active color based on the number of events.
  * @param startFromSunday Whether the week starts from Sunday.
  * @param startDate The start date of the calendar.
@@ -73,6 +89,8 @@ fun ScrollableEventCalendar(
     markers: Map<LocalDate, List<Nife>> = emptyMap(),
     onMenuItemClick: (Nife) -> Unit = {},
     onLoadMore: () -> Unit = {},
+    onDateRangeChange: (LocalDate, LocalDate) -> Unit = { _, _ -> },
+    oldestDate: LocalDate? = null,
     setActiveColor: (Int) -> Color = { count ->
         when (count) {
             0 -> Color.LightGray.copy(alpha = 0.4f)
@@ -103,7 +121,9 @@ fun ScrollableEventCalendar(
             startDate = startDate,
             weekRowHeight = weekRowHeight,
             backwardExpend = backwardExpend,
-            onLoadMore = onLoadMore
+            onLoadMore = onLoadMore,
+            onDateRangeChange = onDateRangeChange,
+            oldestDate = oldestDate
         )
     }
 }
@@ -157,6 +177,8 @@ private fun WeekRows(
     weekRowHeight: Dp = 40.dp,
     backwardExpend: Boolean,
     onLoadMore: () -> Unit,
+    onDateRangeChange: (LocalDate, LocalDate) -> Unit,
+    oldestDate: LocalDate?,
     modifier: Modifier = Modifier
 ) {
     // Keep track of loaded weeks using SnapshotStateList
@@ -172,7 +194,9 @@ private fun WeekRows(
     }
     val listState = rememberLazyListState(initialFirstVisibleItemIndex = loadRange)
     val currentOnLoadMore by rememberUpdatedState(onLoadMore)
-    val oldestMarkerDate = markers.keys.minOrNull()
+    val currentOnDateRangeChange by rememberUpdatedState(onDateRangeChange)
+    val previousLoadThreshold = 1.coerceAtMost((loadRange - 1).coerceAtLeast(0))
+    val oldestAvailableWeekStart = oldestDate?.weekStart(startFromSunday)
 
     LazyColumn(
         state = listState,
@@ -180,9 +204,12 @@ private fun WeekRows(
             .fillMaxWidth()
             .height(weekRowHeight * visibleRange)
     ) {
-        items(weekRows.size) { index ->
+        items(
+            items = weekRows,
+            key = { weekRow -> weekRow.days.first().date }
+        ) { weekRow ->
             WeekRowItem(
-                weekRow = weekRows[index],
+                weekRow = weekRow,
                 markers = markers,
                 weekRowHeight = weekRowHeight,
                 onMenuItemClick = onMenuItemClick,
@@ -191,8 +218,8 @@ private fun WeekRows(
         }
     }
 
-    LaunchedEffect(oldestMarkerDate, startFromSunday) {
-        val targetDate = oldestMarkerDate ?: return@LaunchedEffect
+    LaunchedEffect(oldestAvailableWeekStart, startFromSunday) {
+        val targetDate = oldestAvailableWeekStart ?: return@LaunchedEffect
         val firstLoadedDate =
             weekRows.firstOrNull()?.days?.firstOrNull()?.date ?: return@LaunchedEffect
         val targetWeekStart = targetDate.weekStart(startFromSunday)
@@ -208,45 +235,67 @@ private fun WeekRows(
                 )
             }
             val firstVisibleIndex = listState.firstVisibleItemIndex
+            val firstVisibleOffset = listState.firstVisibleItemScrollOffset
             weekRows.addAll(0, previousWeeks)
-            listState.scrollToItem(firstVisibleIndex + previousWeeks.size)
+            listState.scrollToItem(firstVisibleIndex + previousWeeks.size, firstVisibleOffset)
         }
     }
 
-    // Auto load previous/future weeks when scrolling
-    LaunchedEffect(listState, startDate, startFromSunday, loadRange, backwardExpend) {
-        var hasUserScrolled = false
+    LaunchedEffect(listState, startFromSunday, loadRange) {
+        snapshotFlow {
+            val visibleItems = listState.layoutInfo.visibleItemsInfo
+            if (visibleItems.isEmpty()) {
+                null
+            } else {
+                val firstIndex = (visibleItems.first().index - loadRange).coerceAtLeast(0)
+                val lastIndex = (visibleItems.last().index + loadRange)
+                    .coerceAtMost(weekRows.lastIndex)
+                val start = weekRows.getOrNull(firstIndex)?.days?.firstOrNull()?.date
+                val end = weekRows.getOrNull(lastIndex)?.days?.lastOrNull()?.date
+                if (start != null && end != null) {
+                    CalendarDateRange(start, end)
+                } else {
+                    null
+                }
+            }
+        }
+            .filterNotNull()
+            .distinctUntilChanged()
+            .collect { range ->
+                currentOnDateRangeChange(range.startDate, range.endDate)
+            }
+    }
 
+    // Auto expand previous/future week rows when scrolling.
+    LaunchedEffect(listState, startDate, startFromSunday, loadRange, backwardExpend) {
         snapshotFlow {
             val firstVisibleIndex = listState.firstVisibleItemIndex
             val lastVisibleIndex =
                 listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: firstVisibleIndex
-            Triple(firstVisibleIndex, lastVisibleIndex, listState.isScrollInProgress)
+            CalendarScrollPosition(
+                firstVisibleIndex = firstVisibleIndex,
+                firstVisibleOffset = listState.firstVisibleItemScrollOffset,
+                lastVisibleIndex = lastVisibleIndex
+            )
         }
             .distinctUntilChanged()
-            .collect { (firstVisibleIndex, lastVisibleIndex, isScrollInProgress) ->
-                if (isScrollInProgress) {
-                    hasUserScrolled = true
-                }
-                if (!hasUserScrolled) return@collect
-
-                // Load previous weeks only after the user actually scrolls to the top edge.
-                if (firstVisibleIndex == 0) {
-                    val firstLoadedDate =
-                        weekRows.firstOrNull()?.days?.firstOrNull()?.date ?: startDate
-                    val previousWeeks = (loadRange downTo 1).map { offset ->
-                        generateWeekRow(
-                            date = firstLoadedDate.minusWeeks(offset.toLong()),
-                            startFromSunday = startFromSunday
-                        )
-                    }
-                    weekRows.addAll(0, previousWeeks)
-                    listState.scrollToItem(firstVisibleIndex + previousWeeks.size)
-                    currentOnLoadMore()
+            .collect { position ->
+                // Prepend before the hard top edge so partial months stay reachable.
+                if (position.firstVisibleIndex <= previousLoadThreshold) {
+                    prependPreviousWeeks(
+                        weekRows = weekRows,
+                        startFromSunday = startFromSunday,
+                        loadRange = loadRange,
+                        oldestAvailableWeekStart = oldestAvailableWeekStart,
+                        currentFirstVisibleIndex = position.firstVisibleIndex,
+                        currentFirstVisibleOffset = position.firstVisibleOffset,
+                        scrollToItem = { index, offset -> listState.scrollToItem(index, offset) },
+                        onLoadMore = currentOnLoadMore
+                    )
                 }
 
                 // Load future weeks when scrolling down if this mode is enabled.
-                if (backwardExpend && lastVisibleIndex >= weekRows.lastIndex) {
+                if (backwardExpend && position.lastVisibleIndex >= weekRows.lastIndex) {
                     val lastLoadedDate =
                         weekRows.lastOrNull()?.days?.firstOrNull()?.date ?: startDate
                     val futureWeeks = (1..loadRange).map { offset ->
@@ -360,6 +409,42 @@ private fun DayCellItem(
 private fun LocalDate.weekStart(startFromSunday: Boolean): LocalDate {
     val firstDayOfWeek = if (startFromSunday) DayOfWeek.SUNDAY else DayOfWeek.MONDAY
     return with(TemporalAdjusters.previousOrSame(firstDayOfWeek))
+}
+
+private suspend fun prependPreviousWeeks(
+    weekRows: MutableList<WeekRow>,
+    startFromSunday: Boolean,
+    loadRange: Int,
+    oldestAvailableWeekStart: LocalDate?,
+    currentFirstVisibleIndex: Int,
+    currentFirstVisibleOffset: Int,
+    scrollToItem: suspend (Int, Int) -> Unit,
+    onLoadMore: () -> Unit
+) {
+    val firstLoadedWeekStart =
+        weekRows.firstOrNull()?.days?.firstOrNull()?.date?.weekStart(startFromSunday) ?: return
+    val requestedStart = firstLoadedWeekStart.minusWeeks(loadRange.toLong())
+    val prependStart = when {
+        oldestAvailableWeekStart == null -> requestedStart
+        requestedStart.isBefore(oldestAvailableWeekStart) -> oldestAvailableWeekStart
+        else -> requestedStart
+    }
+    val weeksToPrepend = ChronoUnit.WEEKS.between(prependStart, firstLoadedWeekStart).toInt()
+
+    if (weeksToPrepend <= 0) return
+
+    val previousWeeks = (weeksToPrepend downTo 1).map { offset ->
+        generateWeekRow(
+            date = firstLoadedWeekStart.minusWeeks(offset.toLong()),
+            startFromSunday = startFromSunday
+        )
+    }
+    weekRows.addAll(0, previousWeeks)
+    scrollToItem(
+        currentFirstVisibleIndex + previousWeeks.size,
+        currentFirstVisibleOffset
+    )
+    onLoadMore()
 }
 
 private fun generateWeekRow(
