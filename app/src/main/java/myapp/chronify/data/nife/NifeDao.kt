@@ -60,14 +60,15 @@ interface NifeDao {
     @Query("SELECT * FROM Nife WHERE isFinished = 1 ORDER BY endDT DESC")
     fun getFinishedNifesForAllAsPgSrc(): PagingSource<Int, Nife>
 
-    // 按月统计指定 title 的出现次数
+    // 按完成月份统计指定 title 的出现次数
     @Query("""
         SELECT 
-            STRFTIME('%Y-%m', createdDT / 1000, 'unixepoch') AS month, 
+            STRFTIME('%Y-%m', endDT / 1000, 'unixepoch', 'localtime') AS month,
             COUNT(*) AS count 
         FROM Nife 
-        WHERE title = :targetTitle AND isFinished = 1
+        WHERE title = :targetTitle AND isFinished = 1 AND endDT IS NOT NULL
         GROUP BY month
+        ORDER BY month ASC
     """)
     fun countByTitleGroupedByMonth(targetTitle: String): Flow<List<MonthCount>>
 

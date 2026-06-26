@@ -77,4 +77,46 @@ class NifeDaoTest {
         assertEquals(allItems[0], nife2)
         // assertEquals(suggestionsTitle[1], scheduleEntity2.title)
     }
+
+    @Test
+    @Throws(Exception::class)
+    fun countByTitleGroupedByMonth_groupsByEndDTMonth() = runBlocking {
+        val createdNow = LocalDateTime.now()
+        val monthlyNifes = listOf(
+            Nife(
+                id = 10,
+                title = "Monthly",
+                type = NifeType.RECORD,
+                isFinished = true,
+                createdDT = createdNow,
+                endDT = LocalDateTime.of(2025, 1, 10, 12, 0),
+            ),
+            Nife(
+                id = 11,
+                title = "Monthly",
+                type = NifeType.RECORD,
+                isFinished = true,
+                createdDT = createdNow,
+                endDT = LocalDateTime.of(2025, 1, 20, 12, 0),
+            ),
+            Nife(
+                id = 12,
+                title = "Monthly",
+                type = NifeType.RECORD,
+                isFinished = true,
+                createdDT = createdNow,
+                endDT = LocalDateTime.of(2025, 2, 10, 12, 0),
+            ),
+        )
+
+        nifeDao.insertAll(monthlyNifes)
+
+        val monthCounts = nifeDao.countByTitleGroupedByMonth("Monthly").first()
+
+        assertEquals(2, monthCounts.size)
+        assertEquals("2025-01", monthCounts[0].month)
+        assertEquals(2, monthCounts[0].count)
+        assertEquals("2025-02", monthCounts[1].month)
+        assertEquals(1, monthCounts[1].count)
+    }
 }
