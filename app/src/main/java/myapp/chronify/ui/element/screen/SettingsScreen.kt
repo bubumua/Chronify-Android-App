@@ -1,23 +1,21 @@
 package myapp.chronify.ui.element.screen
 
 
-import android.content.Intent
-import android.net.Uri
-import android.provider.DocumentsContract
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.runtime.Composable
-import myapp.chronify.ui.navigation.NavigationRoute
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
@@ -27,18 +25,15 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
-import androidx.core.app.ActivityCompat.startActivityForResult
-import androidx.core.content.ContextCompat.startActivity
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.google.api.Context
 import kotlinx.coroutines.launch
-import myapp.chronify.R.string
 import myapp.chronify.R.dimen
+import myapp.chronify.R.string
 import myapp.chronify.data.PreferencesKey
 import myapp.chronify.ui.element.components.AppTopBar
+import myapp.chronify.ui.navigation.NavigationRoute
 import myapp.chronify.ui.viewmodel.AppViewModelProvider
 import myapp.chronify.ui.viewmodel.SettingsViewModel
-import org.apache.logging.log4j.ThreadContext.getContext
 
 
 object SettingsScreenRoute : NavigationRoute {
@@ -77,6 +72,16 @@ fun SettingsContent(
     val coroutineScope = rememberCoroutineScope()
     val settingsMap by viewModel.settingsMap.collectAsState()
     val context = LocalContext.current
+    val importLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.OpenDocument()
+    ) { uri ->
+        uri?.let { viewModel.importFromUri(context, it) }
+    }
+    val exportLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.OpenDocumentTree()
+    ) { uri ->
+        uri?.let { viewModel.exportToDirectory(context, it) }
+    }
 
     Column {
         // Display settings
@@ -111,16 +116,12 @@ fun SettingsContent(
                 .padding(dimensionResource(dimen.padding_medium))
         ) {
             Button(onClick = {
-                coroutineScope.launch {
-                    viewModel.importIntoDB(context)
-                }
+                importLauncher.launch(arrayOf("text/*", "text/comma-separated-values"))
             }) {
                 Text(stringResource(string.import_))
             }
             Button(onClick = {
-                coroutineScope.launch {
-                    viewModel.writeCsv(context)
-                }
+                exportLauncher.launch(null)
             }) {
                 Text(stringResource(string.export))
             }
